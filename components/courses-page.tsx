@@ -118,9 +118,15 @@ export function CoursesPage() {
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showMoreFilters, setShowMoreFilters] = React.useState(false);
   const [showEditModal, setShowEditModal] = React.useState(false);
-  const [selectedCourseId, setSelectedCourseId] = React.useState<number | null>(null);
-  const [ courseIdToDelete , setCourseIdToDelete] = React.useState<number | null>(null);
-  const [ courseIdToPublish , setCourseIdToPublish ] = React.useState<number | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = React.useState<number | null>(
+    null
+  );
+  const [courseIdToDelete, setCourseIdToDelete] = React.useState<number | null>(
+    null
+  );
+  const [courseIdToPublish, setCourseIdToPublish] = React.useState<
+    number | null
+  >(null);
   const [editingCourse, setEditingCourse] = React.useState({
     id: "",
     title: "",
@@ -151,7 +157,7 @@ export function CoursesPage() {
   const filteredCourses = coursesData?.filter((course) => {
     const matchesSearch =
       course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course?.instructor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || course.status.toLowerCase() === statusFilter;
@@ -165,16 +171,11 @@ export function CoursesPage() {
   const { mutate } = usePostData("http://localhost:5001/api/createCourse");
 
   const handleCreate = () => {
-    console.log("handleCreate");
-
     const { title, description, category } = newcourse;
     if (!title || !description || !category) {
       alert("Please fill all fields");
       return;
     }
-
-    console.log("newce", newcourse);
-
     mutate(newcourse, {
       onSuccess: (data) => {
         console.log("Course created:", data);
@@ -195,22 +196,22 @@ export function CoursesPage() {
     // Add your view details logic here
   };
 
-     const publishMutation =  usePutData(`http://localhost:5001/api/publishCourse/${courseIdToPublish}`);
+  const publishMutation = usePutData(
+    `http://localhost:5001/api/publishCourse/${courseIdToPublish}`
+  );
 
-
-  const handlePublishCourse = (courseId: number) =>{
-    setCourseIdToPublish(courseId)
-   publishMutation.mutate();
-  }
+  const handlePublishCourse = (courseId: number) => {
+    setCourseIdToPublish(courseId);
+    publishMutation.mutate();
+  };
 
   const { mutate: updateCourseMutate } = usePutData(
-  selectedCourseId ? `http://localhost:5001/api/updateCourse/${selectedCourseId}` : ''
-);
-
+    selectedCourseId
+      ? `http://localhost:5001/api/updateCourse/${selectedCourseId}`
+      : ""
+  );
 
   const handleEditCourse = (courseId: number) => {
-    console.log("courseIdcourseId", courseId);
-    console.log("courseIdcourseId type ", typeof courseId);
     const course = coursesData?.find((c) => c._id == courseId);
 
     console.log("vsgvgvjgsvjv", course);
@@ -219,7 +220,7 @@ export function CoursesPage() {
       const courseWithModules = {
         ...course,
       };
-      setSelectedCourseId(courseId)
+      setSelectedCourseId(courseId);
       setEditingCourse(courseWithModules);
       setShowEditModal(true);
     }
@@ -231,13 +232,14 @@ export function CoursesPage() {
     mutate: deleteCourse,
     isPending,
     isSuccess,
-  } = useDeleteData(`http://localhost:5001/api/deleteCourse/${courseIdToDelete}`)
+  } = useDeleteData(
+    `http://localhost:5001/api/deleteCourse/${courseIdToDelete}`
+  );
 
   const handleDeleteCourse = (courseId: number) => {
-    console.log("Delete course Id:", courseId);
     setCourseIdToDelete(courseId);
-    deleteCourse()
-     queryClient.invalidateQueries(["courses"]);
+    deleteCourse();
+    queryClient.invalidateQueries(["courses"]);
     // Add your delete course logic here
   };
 
@@ -283,14 +285,14 @@ export function CoursesPage() {
           </SelectContent>
         </Select>
 
-        <Button
+        {/* <Button
           variant="outline"
           className="border-slate-200"
           onClick={() => setShowMoreFilters(!showMoreFilters)}
         >
           <Filter className="h-4 w-4 mr-2" />
           More Filters
-        </Button>
+        </Button> */}
       </div>
 
       {/* Courses Table */}
@@ -569,6 +571,26 @@ export function CoursesPage() {
           }}
           onSave={(updatedCourse) => {
             console.log("Saving course:", updatedCourse);
+            const hasEmptyVideoUrls = updatedCourse.modules.some((module) =>
+              module.topics.some((topic) =>
+                topic.subtopics.some((subtopic) =>
+                  Object.values(subtopic.video_language).some(
+                    (url) => !url.trim()
+                  )
+                )
+              )
+            );
+
+            if (hasEmptyVideoUrls) {
+              alert("Some video language fields have empty URLs.");
+              toast({
+                title: "Please Fill all Url field.",
+                description: `Some Video Url field are empty.`,
+              });
+              return;
+            }
+
+            // If validation passes
             updateCourseMutate(updatedCourse);
 
             toast({

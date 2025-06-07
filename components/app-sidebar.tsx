@@ -11,6 +11,7 @@ import {
   Users,
   BarChart3,
   FolderTree,
+  Briefcase
 } from "lucide-react"
 
 import {
@@ -27,6 +28,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Link from "next/link"
 
 const navigationItems = [
   {
@@ -40,13 +42,18 @@ const navigationItems = [
     icon: BookOpen,
   },
   {
-    title: "Lectures",
+    title: "Bonus Courses",
     url: "#lectures",
     icon: PlayCircle,
   },
   {
-    title: "Topics & Subtopics",
-    url: "#topics",
+    title: "Job Board",
+    url: "#jobPost",
+    icon: Briefcase,
+  },
+  {
+    title: "Question Bank",
+    url: "#Question-Bank",
     icon: FolderTree,
   },
   {

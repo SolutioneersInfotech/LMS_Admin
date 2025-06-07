@@ -16,21 +16,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import * as React from "react";
-import {
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Eye,
-  X,
-} from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { Badge } from "@/components/ui/badge";
-
 import {
   Select,
   SelectContent,
@@ -38,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface EditCourseModalProps {
   course: any;
@@ -47,11 +37,24 @@ interface EditCourseModalProps {
 
 function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
   const [editingCourse, setEditingCourse] = React.useState(course);
-  const [openModules, setOpenModules] = React.useState<number[]>([]);
-  const [openTopics, setOpenTopics] = React.useState<number[]>([]);
+  const [openModules, setOpenModules] = React.useState<string[]>([]);
+  const [openTopics, setOpenTopics] = React.useState<string[]>([]);
   const { toast } = useToast();
 
-  const toggleModule = (moduleId: number) => {
+  // Initialize open modules and topics on component mount
+  React.useEffect(() => {
+    // Open the first module by default if there are modules
+    if (editingCourse.modules && editingCourse.modules.length > 0) {
+      const firstModuleId =
+        editingCourse.modules[0]._id || editingCourse.modules[0].id;
+      setOpenModules([firstModuleId]);
+    }
+  }, []);
+
+  // Helper function to get the correct ID (handles both _id and id)
+  const getId = (item: any) => item._id || item.id;
+
+  const toggleModule = (moduleId: string) => {
     setOpenModules((prev) =>
       prev.includes(moduleId)
         ? prev.filter((id) => id !== moduleId)
@@ -59,7 +62,7 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     );
   };
 
-  const toggleTopic = (topicId: number) => {
+  const toggleTopic = (topicId: string) => {
     setOpenTopics((prev) =>
       prev.includes(topicId)
         ? prev.filter((id) => id !== topicId)
@@ -71,29 +74,29 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     setEditingCourse((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateModule = (moduleId: number, field: string, value: any) => {
+  const updateModule = (moduleId: string, field: string, value: any) => {
     setEditingCourse((prev) => ({
       ...prev,
       modules: prev.modules.map((module) =>
-        module.id === moduleId ? { ...module, [field]: value } : module
+        getId(module) === moduleId ? { ...module, [field]: value } : module
       ),
     }));
   };
 
   const updateTopic = (
-    moduleId: number,
-    topicId: number,
+    moduleId: string,
+    topicId: string,
     field: string,
     value: any
   ) => {
     setEditingCourse((prev) => ({
       ...prev,
       modules: prev.modules.map((module) =>
-        module.id === moduleId
+        getId(module) === moduleId
           ? {
               ...module,
               topics: module.topics.map((topic) =>
-                topic.id === topicId ? { ...topic, [field]: value } : topic
+                getId(topic) === topicId ? { ...topic, [field]: value } : topic
               ),
             }
           : module
@@ -102,24 +105,24 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
   };
 
   const updateSubtopic = (
-    moduleId: number,
-    topicId: number,
-    subtopicId: number,
+    moduleId: string,
+    topicId: string,
+    subtopicId: string,
     field: string,
     value: any
   ) => {
     setEditingCourse((prev) => ({
       ...prev,
       modules: prev.modules.map((module) =>
-        module.id === moduleId
+        getId(module) === moduleId
           ? {
               ...module,
               topics: module.topics.map((topic) =>
-                topic.id === topicId
+                getId(topic) === topicId
                   ? {
                       ...topic,
                       subtopics: topic.subtopics.map((subtopic) =>
-                        subtopic.id === subtopicId
+                        getId(subtopic) === subtopicId
                           ? { ...subtopic, [field]: value }
                           : subtopic
                       ),
@@ -132,9 +135,133 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     }));
   };
 
+  const updateVideoLanguage = (
+    moduleId: string,
+    topicId: string,
+    subtopicId: string,
+    language: string,
+    url: string
+  ) => {
+    setEditingCourse((prev) => ({
+      ...prev,
+      modules: prev.modules.map((module) =>
+        getId(module) === moduleId
+          ? {
+              ...module,
+              topics: module.topics.map((topic) =>
+                getId(topic) === topicId
+                  ? {
+                      ...topic,
+                      subtopics: topic.subtopics.map((subtopic) => {
+                        if (getId(subtopic) === subtopicId) {
+                          // Create a new video_language object or update existing one
+                          const updatedVideoLanguage = {
+                            ...(subtopic.video_language || {}),
+                            [language]: url,
+                          };
+                          return {
+                            ...subtopic,
+                            video_language: updatedVideoLanguage,
+                          };
+                        }
+                        return subtopic;
+                      }),
+                    }
+                  : topic
+              ),
+            }
+          : module
+      ),
+    }));
+  };
+  
+
+  const changeVideoLanguageKey = (
+    moduleId: string,
+    topicId: string,
+    subtopicId: string,
+    oldLanguage: string,
+    newLanguage: string
+  ) => {
+    setEditingCourse((prev) => ({
+      ...prev,
+      modules: prev.modules.map((module) =>
+        getId(module) === moduleId
+          ? {
+              ...module,
+              topics: module.topics.map((topic) =>
+                getId(topic) === topicId
+                  ? {
+                      ...topic,
+                      subtopics: topic.subtopics.map((subtopic) => {
+                        if (getId(subtopic) === subtopicId) {
+                          const updatedVideoLanguage = {
+                            ...(subtopic.video_language || {}),
+                          };
+                          // Store the URL associated with the old language
+                          const url = updatedVideoLanguage[oldLanguage];
+                          // Delete the old language entry
+                          delete updatedVideoLanguage[oldLanguage];
+                          // Add the new language entry with the same URL
+                          updatedVideoLanguage[newLanguage] = url;
+
+                          return {
+                            ...subtopic,
+                            video_language: updatedVideoLanguage,
+                          };
+                        }
+                        return subtopic;
+                      }),
+                    }
+                  : topic
+              ),
+            }
+          : module
+      ),
+    }));
+  };
+
+  const deleteVideoLanguage = (
+    moduleId: string,
+    topicId: string,
+    subtopicId: string,
+    language: string
+  ) => {
+    setEditingCourse((prev) => ({
+      ...prev,
+      modules: prev.modules.map((module) =>
+        getId(module) === moduleId
+          ? {
+              ...module,
+              topics: module.topics.map((topic) =>
+                getId(topic) === topicId
+                  ? {
+                      ...topic,
+                      subtopics: topic.subtopics.map((subtopic) => {
+                        if (getId(subtopic) === subtopicId) {
+                          const updatedVideoLanguage = {
+                            ...(subtopic.video_language || {}),
+                          };
+                          delete updatedVideoLanguage[language];
+                          return {
+                            ...subtopic,
+                            video_language: updatedVideoLanguage,
+                          };
+                        }
+                        return subtopic;
+                      }),
+                    }
+                  : topic
+              ),
+            }
+          : module
+      ),
+    }));
+  };
+
   const addModule = () => {
     const newModule = {
-      id: Date.now(),
+      id: `temp-${Date.now()}`, // Temporary ID until saved to database
       title: "New Module",
       description: "Module description",
       topics: [],
@@ -143,11 +270,13 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
       ...prev,
       modules: [...prev.modules, newModule],
     }));
+    // Open the newly added module
+    setOpenModules((prev) => [...prev, newModule.id]);
   };
 
-  const addTopic = (moduleId: number) => {
+  const addTopic = (moduleId: string) => {
     const newTopic = {
-      id: Date.now(),
+      id: `temp-${Date.now()}`, // Temporary ID until saved to database
       title: "New Topic",
       description: "Topic description",
       subtopics: [],
@@ -155,27 +284,29 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     setEditingCourse((prev) => ({
       ...prev,
       modules: prev.modules.map((module) =>
-        module.id === moduleId
+        getId(module) === moduleId
           ? { ...module, topics: [...module.topics, newTopic] }
           : module
       ),
     }));
+    // Open the newly added topic
+    setOpenTopics((prev) => [...prev, newTopic.id]);
   };
 
-  const addSubtopic = (moduleId: number, topicId: number) => {
+  const addSubtopic = (moduleId: string, topicId: string) => {
     const newSubtopic = {
-      id: Date.now(),
+      id: `temp-${Date.now()}`, // Temporary ID until saved to database
       title: "New Subtopic",
-      videoUrl: "",
+      video_language: { English: "" }, // Initialize with empty English video URL
     };
     setEditingCourse((prev) => ({
       ...prev,
       modules: prev.modules.map((module) =>
-        module.id === moduleId
+        getId(module) === moduleId
           ? {
               ...module,
               topics: module.topics.map((topic) =>
-                topic.id === topicId
+                getId(topic) === topicId
                   ? { ...topic, subtopics: [...topic.subtopics, newSubtopic] }
                   : topic
               ),
@@ -185,10 +316,84 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     }));
   };
 
-  const deleteModule = (moduleId: number) => {
+  const addVideoLanguage = (
+    moduleId: string,
+    topicId: string,
+    subtopicId: string
+  ) => {
+    // Find an available language that's not already used
+    const availableLanguages = [
+      "English",
+      "Spanish",
+      "French",
+      "German",
+      "Chinese",
+      "Japanese",
+      "Hindi",
+    ];
+
+    setEditingCourse((prev) => {
+      // Find the subtopic to check existing languages
+      let existingLanguages: string[] = [];
+      for (const module of prev.modules) {
+        if (getId(module) === moduleId) {
+          for (const topic of module.topics) {
+            if (getId(topic) === topicId) {
+              for (const subtopic of topic.subtopics) {
+                if (getId(subtopic) === subtopicId) {
+                  existingLanguages = Object.keys(
+                    subtopic.video_language || {}
+                  );
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Find first available language not already used
+      const newLanguage =
+        availableLanguages.find((lang) => !existingLanguages.includes(lang)) ||
+        "Other";
+
+      // Update the course with the new language
+      return {
+        ...prev,
+        modules: prev.modules.map((module) =>
+          getId(module) === moduleId
+            ? {
+                ...module,
+                topics: module.topics.map((topic) =>
+                  getId(topic) === topicId
+                    ? {
+                        ...topic,
+                        subtopics: topic.subtopics.map((subtopic) => {
+                          if (getId(subtopic) === subtopicId) {
+                            return {
+                              ...subtopic,
+                              video_language: {
+                                ...(subtopic.video_language || {}),
+                                [newLanguage]: "",
+                              },
+                            };
+                          }
+                          return subtopic;
+                        }),
+                      }
+                    : topic
+                ),
+              }
+            : module
+        ),
+      };
+    });
+  };
+
+  const deleteModule = (moduleId: string) => {
     setEditingCourse((prev) => ({
       ...prev,
-      modules: prev.modules.filter((module) => module.id !== moduleId),
+      modules: prev.modules.filter((module) => getId(module) !== moduleId),
     }));
     toast({
       title: "Module Deleted",
@@ -196,14 +401,14 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     });
   };
 
-  const deleteTopic = (moduleId: number, topicId: number) => {
+  const deleteTopic = (moduleId: string, topicId: string) => {
     setEditingCourse((prev) => ({
       ...prev,
       modules: prev.modules.map((module) =>
-        module.id === moduleId
+        getId(module) === moduleId
           ? {
               ...module,
-              topics: module.topics.filter((topic) => topic.id !== topicId),
+              topics: module.topics.filter((topic) => getId(topic) !== topicId),
             }
           : module
       ),
@@ -215,22 +420,22 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
   };
 
   const deleteSubtopic = (
-    moduleId: number,
-    topicId: number,
-    subtopicId: number
+    moduleId: string,
+    topicId: string,
+    subtopicId: string
   ) => {
     setEditingCourse((prev) => ({
       ...prev,
       modules: prev.modules.map((module) =>
-        module.id === moduleId
+        getId(module) === moduleId
           ? {
               ...module,
               topics: module.topics.map((topic) =>
-                topic.id === topicId
+                getId(topic) === topicId
                   ? {
                       ...topic,
                       subtopics: topic.subtopics.filter(
-                        (subtopic) => subtopic.id !== subtopicId
+                        (subtopic) => getId(subtopic) !== subtopicId
                       ),
                     }
                   : topic
@@ -245,14 +450,18 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     });
   };
 
-  const fileInputRef = React.useRef(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
-    fileInputRef.current.click(); // open the file picker
+    if (fileInputRef.current) {
+      fileInputRef.current.click(); // open the file picker
+    }
   };
 
-  const handleUploadThumbnail = async (e) => {
-    const file = e.target.files[0];
+  const handleUploadThumbnail = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     console.log("Selected file:", file);
@@ -261,31 +470,43 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
     formData.append("file", file);
     formData.append(
       "upload_preset",
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-    ); // replace
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "default_preset"
+    );
     formData.append(
       "cloud_name",
-      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    ); // optional here
-
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "default_cloud"
     );
 
-    const data = await res.json();
-    console.log("Uploaded image URL:", data.secure_url);
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${
+          process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "default_cloud"
+        }/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-     if (data.secure_url) {
-    updateCourse("thumbnail_image", data.secure_url); 
-  }
+      const data = await res.json();
+      console.log("Uploaded image URL:", data.secure_url);
 
+      if (data.secure_url) {
+        updateCourse("thumbnail_image", data.secure_url);
+        toast({
+          title: "Thumbnail Updated",
+          description: "Course thumbnail has been successfully updated.",
+        });
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload thumbnail. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
-
-  console.log("editingCourseeditingCourse", editingCourse)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -357,7 +578,7 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                   <Label>Course Thumbnail</Label>
                   <div className="flex items-center gap-4">
                     <img
-                      src={editingCourse.thumbnail_image || "/placeholder.svg" }
+                      src={editingCourse.thumbnail_image || "/placeholder.svg"}
                       alt="Course thumbnail"
                       className="h-20 w-28 rounded-lg object-cover bg-slate-100"
                     />
@@ -393,19 +614,19 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {editingCourse.modules.map((module, moduleIndex) => (
+                {editingCourse.modules.map((module) => (
                   <div
-                    key={module.id}
+                    key={getId(module)}
                     className="border border-slate-200 rounded-lg overflow-hidden"
                   >
                     <Collapsible
-                      open={openModules.includes(module.id)}
-                      onOpenChange={() => toggleModule(module.id)}
+                      open={openModules.includes(getId(module))}
+                      onOpenChange={() => toggleModule(getId(module))}
                     >
                       <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between p-4 hover:bg-slate-50 cursor-pointer">
                           <div className="flex items-center gap-3 flex-1">
-                            {openModules.includes(module.id) ? (
+                            {openModules.includes(getId(module)) ? (
                               <ChevronDown className="h-5 w-5 text-slate-400" />
                             ) : (
                               <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -415,7 +636,7 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                 value={module.title}
                                 onChange={(e) =>
                                   updateModule(
-                                    module.id,
+                                    getId(module),
                                     "title",
                                     e.target.value
                                   )
@@ -427,7 +648,7 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                 value={module.description}
                                 onChange={(e) =>
                                   updateModule(
-                                    module.id,
+                                    getId(module),
                                     "description",
                                     e.target.value
                                   )
@@ -447,7 +668,7 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                               className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                deleteModule(module.id);
+                                deleteModule(getId(module));
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -465,7 +686,7 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => addTopic(module.id)}
+                              onClick={() => addTopic(getId(module))}
                               className="text-blue-600 border-blue-200 hover:bg-blue-50"
                             >
                               <Plus className="h-4 w-4 mr-1" />
@@ -476,17 +697,17 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                           <div className="space-y-3">
                             {module.topics.map((topic) => (
                               <div
-                                key={topic.id}
+                                key={getId(topic)}
                                 className="bg-white rounded-lg border border-slate-200 overflow-hidden"
                               >
                                 <Collapsible
-                                  open={openTopics.includes(topic.id)}
-                                  onOpenChange={() => toggleTopic(topic.id)}
+                                  open={openTopics.includes(getId(topic))}
+                                  onOpenChange={() => toggleTopic(getId(topic))}
                                 >
                                   <CollapsibleTrigger asChild>
                                     <div className="flex items-center justify-between p-3 hover:bg-slate-50 cursor-pointer">
                                       <div className="flex items-center gap-3 flex-1">
-                                        {openTopics.includes(topic.id) ? (
+                                        {openTopics.includes(getId(topic)) ? (
                                           <ChevronDown className="h-4 w-4 text-slate-400" />
                                         ) : (
                                           <ChevronRight className="h-4 w-4 text-slate-400" />
@@ -496,8 +717,8 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                             value={topic.title}
                                             onChange={(e) =>
                                               updateTopic(
-                                                module.id,
-                                                topic.id,
+                                                getId(module),
+                                                getId(topic),
                                                 "title",
                                                 e.target.value
                                               )
@@ -509,8 +730,8 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                             value={topic.description}
                                             onChange={(e) =>
                                               updateTopic(
-                                                module.id,
-                                                topic.id,
+                                                getId(module),
+                                                getId(topic),
                                                 "description",
                                                 e.target.value
                                               )
@@ -530,7 +751,10 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                           className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-50"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            deleteTopic(module.id, topic.id);
+                                            deleteTopic(
+                                              getId(module),
+                                              getId(topic)
+                                            );
                                           }}
                                         >
                                           <Trash2 className="h-3 w-3" />
@@ -549,7 +773,10 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                           size="sm"
                                           variant="outline"
                                           onClick={() =>
-                                            addSubtopic(module.id, topic.id)
+                                            addSubtopic(
+                                              getId(module),
+                                              getId(topic)
+                                            )
                                           }
                                           className="text-green-600 border-green-200 hover:bg-green-50"
                                         >
@@ -561,18 +788,18 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                       <div className="space-y-2">
                                         {topic.subtopics.map((subtopic) => (
                                           <div
-                                            key={subtopic.id}
-                                            className="flex items-center gap-3 p-2 bg-white rounded border border-slate-200"
+                                            key={getId(subtopic)}
+                                            className="p-3 bg-white rounded border border-slate-200 space-y-2"
                                           >
-                                            <Video className="h-4 w-4 text-slate-400 flex-shrink-0" />
-                                            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                            <div className="flex items-center gap-3">
+                                              <Video className="h-4 w-4 text-slate-400 flex-shrink-0" />
                                               <Input
-                                                value={subtopic.title}
+                                                value={subtopic?.title || ""}
                                                 onChange={(e) =>
                                                   updateSubtopic(
-                                                    module.id,
-                                                    topic.id,
-                                                    subtopic.id,
+                                                    getId(module),
+                                                    getId(topic),
+                                                    getId(subtopic),
                                                     "title",
                                                     e.target.value
                                                   )
@@ -580,38 +807,143 @@ function EditCourseModal({ course, onClose, onSave }: EditCourseModalProps) {
                                                 placeholder="Subtopic title"
                                                 className="text-sm"
                                               />
-                                              <div className="relative">
-                                                <LinkIcon className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
-                                                <Input
-                                                  value={subtopic.videoUrl}
-                                                  onChange={(e) =>
-                                                    updateSubtopic(
-                                                      module.id,
-                                                      topic.id,
-                                                      subtopic.id,
-                                                      "videoUrl",
-                                                      e.target.value
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                                                onClick={() =>
+                                                  deleteSubtopic(
+                                                    getId(module),
+                                                    getId(topic),
+                                                    getId(subtopic)
+                                                  )
+                                                }
+                                              >
+                                                <Trash2 className="h-3 w-3" />
+                                              </Button>
+                                            </div>
+
+                                            <div className="space-y-2 pl-7">
+                                              <div className="flex items-center justify-between">
+                                                <Label className="text-xs text-slate-600">
+                                                  Video URLs by Language
+                                                </Label>
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline"
+                                                  className="text-xs h-6 px-2"
+                                                  onClick={() =>
+                                                    addVideoLanguage(
+                                                      getId(module),
+                                                      getId(topic),
+                                                      getId(subtopic)
                                                     )
                                                   }
-                                                  placeholder="Video URL"
-                                                  className="text-sm pl-7"
-                                                />
+                                                >
+                                                  <Plus className="h-3 w-3 mr-1" />
+                                                  Add Language
+                                                </Button>
                                               </div>
+
+                                              {/* Display existing language videos */}
+                                              {Object.entries(
+                                                subtopic?.video_language || {}
+                                              ).map(([language, url]) => (
+                                                <div
+                                                  key={language}
+                                                  className="flex items-center gap-2"
+                                                >
+                                                  <Select
+                                                    value={language.toLowerCase()}
+                                                    onValueChange={(
+                                                      newLanguageLower
+                                                    ) => {
+                                                      const newLanguage =
+                                                        newLanguageLower
+                                                          .charAt(0)
+                                                          .toUpperCase() +
+                                                        newLanguageLower.slice(
+                                                          1
+                                                        );
+
+                                                      changeVideoLanguageKey(
+                                                        getId(module),
+                                                        getId(topic),
+                                                        getId(subtopic),
+                                                        language,
+                                                        newLanguage
+                                                      );
+                                                    }}
+                                                  >
+                                                    <SelectTrigger className="text-xs w-48">
+                                                      <SelectValue placeholder="Select Language" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                      <SelectItem value="english">
+                                                        English
+                                                      </SelectItem>
+                                                      <SelectItem value="spanish">
+                                                        Spanish
+                                                      </SelectItem>
+                                                      <SelectItem value="french">
+                                                        French
+                                                      </SelectItem>
+                                                      <SelectItem value="german">
+                                                        German
+                                                      </SelectItem>
+                                                      <SelectItem value="chinese">
+                                                        Chinese
+                                                      </SelectItem>
+                                                      <SelectItem value="japanese">
+                                                        Japanese
+                                                      </SelectItem>
+                                                      <SelectItem value="hindi">
+                                                        Hindi
+                                                      </SelectItem>
+                                                    </SelectContent>
+                                                  </Select>
+
+                                                  <div className="relative flex-1">
+                                                    <LinkIcon className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
+                                                    <Input
+                                                      required
+                                                      value={url as string}
+                                                      onChange={(e) => {
+                                                        updateVideoLanguage(
+                                                          getId(module),
+                                                          getId(topic),
+                                                          getId(subtopic),
+                                                          language,
+                                                          e.target.value
+                                                        );
+                                                      }}
+                                                      placeholder="Video URL"
+                                                      className={cn(
+                                                        "text-xs pl-7 w-full",
+                                                        url.trim() === "" &&
+                                                          "border border-red-500"
+                                                      )}
+                                                    />
+                                                  </div>
+
+                                                  <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6 text-red-500 hover:bg-red-50"
+                                                    onClick={() => {
+                                                      deleteVideoLanguage(
+                                                        getId(module),
+                                                        getId(topic),
+                                                        getId(subtopic),
+                                                        language
+                                                      );
+                                                    }}
+                                                  >
+                                                    <Trash2 className="h-4 w-4" />
+                                                  </Button>
+                                                </div>
+                                              ))}
                                             </div>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                                              onClick={() =>
-                                                deleteSubtopic(
-                                                  module.id,
-                                                  topic.id,
-                                                  subtopic.id
-                                                )
-                                              }
-                                            >
-                                              <Trash2 className="h-3 w-3" />
-                                            </Button>
                                           </div>
                                         ))}
                                       </div>

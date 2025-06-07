@@ -5,7 +5,6 @@ import { AppSidebar } from "./components/app-sidebar"
 import { TopNavigation } from "./components/top-navigation"
 import { DashboardPage } from "./components/dashboard-page"
 import { CoursesPage } from "./components/courses-page"
-import { TopicsPage } from "./components/topics-page"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/toaster"
 import { LecturesPage } from "./components/lectures-page"
@@ -13,6 +12,8 @@ import { SettingsPage } from "./components/settings-page"
 import { LoginPage } from "./components/login-page"
 import { ForgotPasswordPage } from "./components/forgot-password-page"
 import { ChangePasswordPage } from "./components/change-password-page"
+import JobPostForm from "./components/jobPost-page"
+import QuestionBank from "./components/questionBank"
 
 export default function AdminPanel() {
   const [currentPage, setCurrentPage] = React.useState("dashboard")
@@ -41,10 +42,12 @@ export default function AdminPanel() {
         return <CoursesPage />
       case "lectures":
         return <LecturesPage />
-      case "topics":
-        return <TopicsPage />
+      case "Question-Bank":
+        return <QuestionBank />
       case "settings":
         return <SettingsPage />
+      case "jobPost":
+        return <JobPostForm />
       case "dashboard":
       default:
         return <DashboardPage />

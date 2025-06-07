@@ -16,7 +16,7 @@ export const useDeleteData = <T = any>(url: string, options?: DeleteOptions) => 
 
   const deleteData = async (): Promise<T> => {
     const res = await fetch(url, {
-      method: 'POST',
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         ...headers,

@@ -1,189 +1,451 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Eye, Play, Clock, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-
-const lectures = [
-  {
-    id: 1,
-    title: "Introduction to React Components",
-    course: "React Fundamentals",
-    instructor: "Sarah Johnson",
-    instructorAvatar: "/placeholder.svg?height=32&width=32",
-    duration: "45:30",
-    views: 1234,
-    status: "Published",
-    uploadDate: "2024-01-15",
-    thumbnail: "/placeholder.svg?height=60&width=80",
-    description: "Learn the basics of React components and how to create your first component.",
-  },
-  {
-    id: 2,
-    title: "Understanding JSX Syntax",
-    course: "React Fundamentals",
-    instructor: "Sarah Johnson",
-    instructorAvatar: "/placeholder.svg?height=32&width=32",
-    duration: "32:15",
-    views: 987,
-    status: "Published",
-    uploadDate: "2024-01-18",
-    thumbnail: "/placeholder.svg?height=60&width=80",
-    description: "Deep dive into JSX syntax and best practices for writing clean React code.",
-  },
-  {
-    id: 3,
-    title: "State Management with Hooks",
-    course: "React Fundamentals",
-    instructor: "Sarah Johnson",
-    instructorAvatar: "/placeholder.svg?height=32&width=32",
-    duration: "58:42",
-    views: 756,
-    status: "Draft",
-    uploadDate: "2024-01-20",
-    thumbnail: "/placeholder.svg?height=60&width=80",
-    description: "Master React hooks for effective state management in your applications.",
-  },
-  {
-    id: 4,
-    title: "Advanced JavaScript Concepts",
-    course: "Advanced JavaScript",
-    instructor: "Mike Chen",
-    instructorAvatar: "/placeholder.svg?height=32&width=32",
-    duration: "67:20",
-    views: 2156,
-    status: "Published",
-    uploadDate: "2024-01-12",
-    thumbnail: "/placeholder.svg?height=60&width=80",
-    description: "Explore advanced JavaScript concepts including closures, prototypes, and async programming.",
-  },
-]
+import * as React from "react";
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Eye,
+  Play,
+  Clock,
+  Users,
+  ArrowRight,
+} from "lucide-react";
+import ReactPlayer from "react-player";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { usePostData } from "@/hooks/usePostData";
+import { usePostFormData } from "@/hooks/usePostFormData";
+import { useFetchData } from "@/hooks/useFetchData";
+import { usePutData } from "@/hooks/usePutData";
+import { useQueryClient } from "@tanstack/react-query";
+import { uploadToCloudinary } from "@/lib/utils";
+import HLSVideoPlayer from "../components/hls";
+import { useDeleteData } from "@/hooks/useDeleteData";
+import JobPostForm from "./jobPost-page";
+// const lectures = [
+//   {
+//     id: 1,
+//     title: "Introduction to React Components",
+//     course: "React Fundamentals",
+//     instructor: "Sarah Johnson",
+//     instructorAvatar: "/placeholder.svg?height=32&width=32",
+//     duration: "45:30",
+//     views: 1234,
+//     status: "Published",
+//     uploadDate: "2024-01-15",
+//     thumbnail: "/placeholder.svg?height=60&width=80",
+//     description:
+//       "Learn the basics of React components and how to create your first component.",
+//   },
+//   {
+//     id: 2,
+//     title: "Understanding JSX Syntax",
+//     course: "React Fundamentals",
+//     instructor: "Sarah Johnson",
+//     instructorAvatar: "/placeholder.svg?height=32&width=32",
+//     duration: "32:15",
+//     views: 987,
+//     status: "Published",
+//     uploadDate: "2024-01-18",
+//     thumbnail: "/placeholder.svg?height=60&width=80",
+//     description:
+//       "Deep dive into JSX syntax and best practices for writing clean React code.",
+//   },
+//   {
+//     id: 3,
+//     title: "State Management with Hooks",
+//     course: "React Fundamentals",
+//     instructor: "Sarah Johnson",
+//     instructorAvatar: "/placeholder.svg?height=32&width=32",
+//     duration: "58:42",
+//     views: 756,
+//     status: "Draft",
+//     uploadDate: "2024-01-20",
+//     thumbnail: "/placeholder.svg?height=60&width=80",
+//     description:
+//       "Master React hooks for effective state management in your applications.",
+//   },
+//   {
+//     id: 4,
+//     title: "Advanced JavaScript Concepts",
+//     course: "Advanced JavaScript",
+//     instructor: "Mike Chen",
+//     instructorAvatar: "/placeholder.svg?height=32&width=32",
+//     duration: "67:20",
+//     views: 2156,
+//     status: "Published",
+//     uploadDate: "2024-01-12",
+//     thumbnail: "/placeholder.svg?height=60&width=80",
+//     description:
+//       "Explore advanced JavaScript concepts including closures, prototypes, and async programming.",
+//   },
+// ];
 
 export function LecturesPage() {
-  const [searchTerm, setSearchTerm] = React.useState("")
-  const [statusFilter, setStatusFilter] = React.useState("all")
-  const [courseFilter, setCourseFilter] = React.useState("all")
-  const [showCreateModal, setShowCreateModal] = React.useState(false)
-  const [showMoreFilters, setShowMoreFilters] = React.useState(false)
-  const [selectedLecture, setSelectedLecture] = React.useState<(typeof lectures)[0] | null>(null)
-  const [showViewModal, setShowViewModal] = React.useState(false)
-  const { toast } = useToast()
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [courseFilter, setCourseFilter] = React.useState("all");
+  const [showCreateModal, setShowCreateModal] = React.useState(false);
+  const [showMoreFilters, setShowMoreFilters] = React.useState(false);
+  const [selectedLecture, setSelectedLecture] = React.useState(null);
+  const [showViewModal, setShowViewModal] = React.useState(false);
+  const { toast } = useToast();
+  const [bonusCourses, setBonusCourses] = React.useState(null);
+  const [publisheLecture, setPublishLecture] = React.useState(null);
+  const [selectedVideo, setSelectedVideo] = React.useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [lectureIdToDelete, setLectureIdToDelete] = React.useState(null);
 
-  const filteredLectures = lectures.filter((lecture) => {
+  const [formData, setFormData] = React.useState({
+    title: "",
+    description: "",
+    instructorName: "",
+    // duration: "",
+    status: "Published",
+    thumbnail_image: "",
+    videoUrl: null as File | null, 
+  });
+
+
+  React.useEffect(() => {
+    if (selectedLecture) {
+      setFormData({
+        title: selectedLecture.title || "",
+        description: selectedLecture.description || "",
+        instructorName: selectedLecture.instructorName || "",
+        // duration: selectedLecture.duration || "",
+        status: selectedLecture.status || "Published",
+        thumbnail_image: selectedLecture.thumbnail_image || "",
+        videoUrl: selectedLecture.videoUrl || "",
+      });
+    }
+  }, [selectedLecture]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleStatusChange = (value: string) => {
+    setFormData({ ...formData, status: value });
+  };
+
+  const thumbnailRef = React.useRef(null)
+
+  const changeThubnailImage = (e)=>{
+    thumbnailRef?.current?.click();
+  }
+
+  // const vidRef = React.useRef(null);
+
+
+  const handleThumbnailEdit = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("handleThumbnailEdithandleThumbnailEdit")
+    const file = e.target.files?.[0];
+    if (file) {
+      console.log("file exist", file)
+          const thumbnail_image = await uploadToCloudinary(file);
+          console.log("thumbnail_image",thumbnail_image)
+          if (thumbnail_image) {
+      setFormData((prev) => ({
+        ...prev,
+        thumbnail_image,
+      }));
+  };
+}
+
+
+// const selectTutorialVideo = ()=>{
+//   vidRef?.current?.click();
+// }
+
+// const handleTutorialChange = (e)=>{
+//   const file = e.target.files?.[0];
+//   if (file){
+//     setFormData((prev)=>({
+//     ...prev , file
+//   }))
+//   }
+  
+// }
+}
+
+const { mutate : editBonusCourseMutate } = usePostFormData(
+    `http://localhost:5001/api/editBonusCourse/${selectedLecture?._id}`
+  );
+
+
+  const handleSubmit = () => {
+    // handleEditLectureSubmit(formData)
+    console.log("formData in handleSubmit", formData);
+
+     const data = new FormData();
+
+  data.append("title", formData.title);
+  data.append("description", formData.description);
+  data.append("instructorName", formData.instructorName);
+  data.append("status", formData.status);
+  data.append("thumbnail_image", formData.thumbnail_image);
+
+  // Only append if file exists
+  if (formData.videoUrl instanceof File) {
+  data.append("video", formData.videoUrl); // ✅ safe
+} else if (formData.videoUrl && formData.videoUrl.file instanceof File) {
+  data.append("video", formData.videoUrl.file); // ✅ handle nested case
+} else {
+  console.warn("Invalid video file. Not appending.");
+}
+
+
+
+    editBonusCourseMutate(data);
+
+    setShowViewModal(false);
+  };
+
+  const queryClient = useQueryClient();
+
+  const filteredLectures = bonusCourses?.filter((lecture) => {
     const matchesSearch =
       lecture.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lecture.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lecture.course.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || lecture.status.toLowerCase() === statusFilter
-    const matchesCourse = courseFilter === "all" || lecture.course === courseFilter
-    return matchesSearch && matchesStatus && matchesCourse
-  })
+      lecture.instructorName.toLowerCase().includes(searchTerm.toLowerCase()) ;
+    const matchesStatus =
+      statusFilter === "all" || lecture.status.toLowerCase() === statusFilter;
+    return matchesSearch && matchesStatus ;
+  });
 
-  const handleCreateLecture = (formData: FormData) => {
-    const title = formData.get("title") as string
-    const course = formData.get("course") as string
-    const description = formData.get("description") as string
+  const { data, isLoading, error } = useFetchData(
+    "bonus_courses",
+    "http://localhost:5001/api/getallBonusCourses"
+  );
 
-    console.log("Creating lecture:", { title, course, description })
+  React.useEffect(() => {
+    if (data) {
+      setBonusCourses(data.allBonusCourses);
+    }
+  }, [data]);
+
+  const { mutate } = usePostFormData(
+    "http://localhost:5001/api/createBonusCourse"
+  );
+
+  const handleCreateLecture = async (formData: FormData) => {
+    const title = formData.get("title") as string;
+    const instructorName = formData.get("instructorName") as string;
+    const description = formData.get("description") as string;
+    const video = formData.get("video") as File;
+    const thumbnail_images = formData.get("thumbnail_image") as File;
+
+    const thumbnail_image = await uploadToCloudinary(thumbnail_images);
+    if (!thumbnail_image) return;
+
+    const newFormData = new FormData(); // ✅ Correct!
+    newFormData.append("title", title);
+    newFormData.append("instructorName", instructorName);
+    newFormData.append("description", description);
+    newFormData.append("video", video);
+    newFormData.append("thumbnail_image", thumbnail_image);
+
+    console.log("newFormDatanewFormDatanewFormData", newFormData);
+
+    mutate(newFormData); // pass FormData, not JSON
+
     toast({
       title: "Lecture Created",
       description: `"${title}" has been successfully created.`,
-    })
-    setShowCreateModal(false)
-  }
+    });
+    setShowCreateModal(false);
+  };
+
+
 
   const handleViewDetails = (lecture: (typeof lectures)[0]) => {
-    setSelectedLecture(lecture)
-    setShowViewModal(true)
-  }
+    console.log("jgghcghcghcghchgchg", lecture);
+    setSelectedLecture(lecture);
+    setShowViewModal(true);
+  };
 
   const handleEditLecture = (lectureId: number) => {
-    console.log("Edit lecture:", lectureId)
+    console.log("Edit lecture:", lectureId);
     toast({
       title: "Edit Lecture",
       description: "Opening lecture editor...",
-    })
-  }
+    });
+  };
+
+  const {
+    mutate: deleteBonusCourse,
+    isPending,
+    isSuccess,
+  } = useDeleteData(
+    `http://localhost:5001/api/deleteBonusCourse/${lectureIdToDelete}`
+  );
 
   const handleDeleteLecture = (lectureId: number) => {
-    console.log("Delete lecture:", lectureId)
-    toast({
-      title: "Lecture Deleted",
-      description: "The lecture has been successfully deleted.",
-      variant: "destructive",
-    })
-  }
+    console.log("Delete lecture:", lectureId);
+    setLectureIdToDelete(lectureId);
+
+    deleteBonusCourse();
+    // toast({
+    //   title: "Lecture Deleted",
+    //   description: "The lecture has been successfully deleted.",
+    //   variant: "destructive",
+    // });
+  };
+
+  const publishMutation = usePutData(
+    `http://localhost:5001/api/publishBonusCourse/${publisheLecture}`
+  );
+
+  queryClient.invalidateQueries(["bonus_courses"]);
 
   const handlePublishLecture = (lectureId: number) => {
-    console.log("Publish lecture:", lectureId)
+    setPublishLecture(lectureId);
+    publishMutation.mutate();
     toast({
       title: "Lecture Published",
       description: "The lecture is now live and available to students.",
-    })
+    });
+  };
+
+  const vidRef = React.useRef(null);
+
+
+  const selectTutorialVideo = ()=>{
+    vidRef?.current?.click();
   }
+
+
+  const handleTutorialChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        videoUrl : file,
+      }));
+    }
+  }
+};
+
+ 
+
+  console.log("FormDatakhggkgkbkjbkjbkjbkjb ", formData)
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Lectures</h1>
-          <p className="text-slate-600 mt-2">Manage video lectures and learning content</p>
+          <h1 className="text-3xl font-bold text-slate-900">Bonus Courses</h1>
+          <p className="text-slate-600 mt-2">
+            Manage video tutorials and learning content
+          </p>
         </div>
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               <Plus className="h-4 w-4 mr-2" />
-              Upload New Lecture
+              Upload New Tutorial
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Upload New Lecture</DialogTitle>
+              <DialogTitle>Upload New Tutorial</DialogTitle>
             </DialogHeader>
             <form action={handleCreateLecture} className="space-y-4">
               <div>
-                <Label htmlFor="title">Lecture Title</Label>
-                <Input id="title" name="title" placeholder="Enter lecture title" required />
+                <Label htmlFor="title">Tutorial Title</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  placeholder="Enter Tutorial title"
+                  required
+                />
               </div>
               <div>
-                <Label htmlFor="course">Course</Label>
-                <Select name="course" required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select course" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="React Fundamentals">React Fundamentals</SelectItem>
-                    <SelectItem value="Advanced JavaScript">Advanced JavaScript</SelectItem>
-                    <SelectItem value="Python for Data Science">Python for Data Science</SelectItem>
-                    <SelectItem value="UI/UX Design Principles">UI/UX Design Principles</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="instructorName">Instructor Name</Label>
+                <Input
+                  id="instructorName"
+                  name="instructorName"
+                  placeholder="Enter Instructor Name "
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="description">Description</Label>
-                <Textarea id="description" name="description" placeholder="Enter lecture description" rows={3} />
+                <Textarea
+                  id="description"
+                  name="description"
+                  placeholder="Enter Tutorial description"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label htmlFor="thumbnail_image">Thumbnail Image</Label>
+                <Input
+                  id="thumbnail_image"
+                  name="thumbnail_image"
+                  type="file"
+                  accept="image/*"
+                />
               </div>
               <div>
                 <Label htmlFor="video">Video File</Label>
                 <Input id="video" name="video" type="file" accept="video/*" />
               </div>
               <div className="flex gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)} className="flex-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex-1"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white flex-1">
-                  Upload Lecture
+                <Button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
+                >
+                  Upload Tutorial
                 </Button>
               </div>
             </form>
@@ -197,7 +459,7 @@ export function LecturesPage() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
-              placeholder="Search lectures, instructors, courses..."
+              placeholder="Search Tutorials, instructors, courses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-slate-50 border-slate-200 focus:bg-white focus:border-blue-300"
@@ -215,23 +477,6 @@ export function LecturesPage() {
             </SelectContent>
           </Select>
 
-          <Select value={courseFilter} onValueChange={setCourseFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Course" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Courses</SelectItem>
-              <SelectItem value="React Fundamentals">React Fundamentals</SelectItem>
-              <SelectItem value="Advanced JavaScript">Advanced JavaScript</SelectItem>
-              <SelectItem value="Python for Data Science">Python for Data Science</SelectItem>
-              <SelectItem value="UI/UX Design Principles">UI/UX Design Principles</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button variant="outline" className="border-slate-200" onClick={() => setShowMoreFilters(!showMoreFilters)}>
-            <Filter className="h-4 w-4 mr-2" />
-            More Filters
-          </Button>
         </div>
 
         {/* More Filters Panel */}
@@ -282,10 +527,15 @@ export function LecturesPage() {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowMoreFilters(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowMoreFilters(false)}
+              >
                 Clear Filters
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">Apply Filters</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                Apply Filters
+              </Button>
             </div>
           </div>
         )}
@@ -296,23 +546,42 @@ export function LecturesPage() {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
-              <TableHead className="font-semibold text-slate-700">Lecture</TableHead>
-              <TableHead className="font-semibold text-slate-700">Course</TableHead>
-              <TableHead className="font-semibold text-slate-700">Instructor</TableHead>
-              <TableHead className="font-semibold text-slate-700">Duration</TableHead>
-              <TableHead className="font-semibold text-slate-700">Views</TableHead>
-              <TableHead className="font-semibold text-slate-700">Status</TableHead>
-              <TableHead className="font-semibold text-slate-700 text-right">Actions</TableHead>
+              <TableHead className="font-semibold text-slate-700">
+                Tutorial
+              </TableHead>
+              {/* <TableHead className="font-semibold text-slate-700">Course</TableHead> */}
+              <TableHead className="font-semibold text-slate-700">
+                Instructor
+              </TableHead>
+              <TableHead className="font-semibold text-slate-700">
+                Duration
+              </TableHead>
+              <TableHead className="font-semibold text-slate-700">
+                Views
+              </TableHead>
+              <TableHead className="font-semibold text-slate-700">
+                Status
+              </TableHead>
+              <TableHead className="font-semibold text-slate-700 text-right">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredLectures.map((lecture) => (
-              <TableRow key={lecture.id} className="hover:bg-slate-50 transition-colors">
+            {filteredLectures?.map((lecture) => (
+              <TableRow
+                key={lecture._id}
+                onClick={() => {
+                  setSelectedVideo(lecture.videoUrl);
+                  setIsDialogOpen(true);
+                }}
+                className="hover:bg-slate-50 transition-colors cursor-pointer"
+              >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <img
-                        src={lecture.thumbnail || "/placeholder.svg"}
+                        src={lecture?.thumbnail_image || "/placeholder.svg"}
                         alt={lecture.title}
                         className="h-12 w-16 rounded-lg object-cover bg-slate-100"
                       />
@@ -320,29 +589,41 @@ export function LecturesPage() {
                         <Play className="h-4 w-4 text-white bg-black bg-opacity-50 rounded-full p-1" />
                       </div>
                     </div>
-                    <div>
-                      <div className="font-medium text-slate-900">{lecture.title}</div>
-                      <div className="text-sm text-slate-500">Uploaded {lecture.uploadDate}</div>
+                    <div> 
+                      <div className="font-medium text-slate-900">
+                        {lecture.title}
+                      </div>
+                      <div className="text-sm text-slate-500">
+                        Uploaded{" "}
+                        {new Date(lecture.createdAt)
+                          .toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          .replace(/ /g, "-")}
+                      </div>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
                     {lecture.course}
                   </Badge>
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={lecture.instructorAvatar || "/placeholder.svg"} />
+                    {/* <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-slate-100 text-slate-600">
-                        {lecture.instructor
+                        {lecture.instructorName
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium text-slate-900">{lecture.instructor}</span>
+                    </Avatar> */}
+                    <span className="font-medium text-slate-900">
+                      {lecture?.instructorName}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -354,12 +635,14 @@ export function LecturesPage() {
                 <TableCell>
                   <div className="flex items-center gap-1 text-slate-600">
                     <Users className="h-4 w-4" />
-                    <span className="font-medium">{lecture.views.toLocaleString()}</span>
+                    <span className="font-medium">1234</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={lecture.status === "Published" ? "default" : "secondary"}
+                    variant={
+                      lecture.status === "Published" ? "default" : "secondary"
+                    }
                     className={
                       lecture.status === "Published"
                         ? "bg-green-100 text-green-800 border-green-200"
@@ -369,7 +652,10 @@ export function LecturesPage() {
                     {lecture.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell
+                  className="text-right"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -377,21 +663,30 @@ export function LecturesPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleViewDetails(lecture)}>
+                      <DropdownMenuItem
+                        onClick={() => handleEditLecture(lecture._id)  }
+                      >
                         <Eye className="mr-2 h-4 w-4" />
                         View Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEditLecture(lecture.id)}>
+                      <DropdownMenuItem
+                        onClick={() =>  handleViewDetails(lecture)}
+                      >
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Lecture
                       </DropdownMenuItem>
                       {lecture.status === "Draft" && (
-                        <DropdownMenuItem onClick={() => handlePublishLecture(lecture.id)}>
+                        <DropdownMenuItem
+                          onClick={() => handlePublishLecture(lecture._id)}
+                        >
                           <Play className="mr-2 h-4 w-4" />
                           Publish
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteLecture(lecture.id)}>
+                      <DropdownMenuItem
+                        className="text-red-600"
+                        onClick={() => handleDeleteLecture(lecture._id)}
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete Lecture
                       </DropdownMenuItem>
@@ -404,6 +699,17 @@ export function LecturesPage() {
         </Table>
       </div>
 
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl w-full p-4">
+          <DialogHeader>
+            <DialogTitle>Lecture Preview</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video w-full">
+            {selectedVideo && <HLSVideoPlayer videoUrl={selectedVideo} />}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* View Lecture Details Modal */}
       <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
         <DialogContent className="sm:max-w-lg">
@@ -412,40 +718,109 @@ export function LecturesPage() {
           </DialogHeader>
           {selectedLecture && (
             <div className="space-y-4">
-              <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center">
-                <Play className="h-12 w-12 text-slate-400" />
+              {/* Video placeholder */}
+              {/* <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center">
+              <Play className="h-12 w-12 text-slate-400 " />
+            </div> */}
+
+              {/* Editable form fields */}
+              <div className="grid gap-4">
+                <div>
+                  <Label>Title</Label>
+                  <Input
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Label>Description</Label>
+                  <Textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Label>Instructor</Label>
+                  <Input
+                    name="instructorName"
+                    value={formData.instructorName}
+                    onChange={handleChange}
+                  />
+                </div>
+                {/* <div>
+                <Label>Duration</Label>
+                <Input name="duration" value={formData.duration} onChange={handleChange} />
+              </div> */}
+                <div>
+                  <div>
+                    <div className="flex items-center gap-2 py-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Thumbnail Image URL
+                      </span>
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      <p className="text-sm text-gray-600 truncate max-w-[200px]">
+                        {formData.thumbnail_image}
+                      </p>
+                    </div>
+                    <button onClick={changeThubnailImage} className="border border-gray-500 text-gray-700 px-2 py-1 rounded hover:bg-gray-100">Change Thumbnail Image</button>
+                    <Input
+                      name="thumbnail_image"
+                      ref={thumbnailRef}
+                      type="file"
+                      onChange={handleThumbnailEdit}
+                      className="hidden"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 py-2 mt-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Video URL
+                      </span>
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      <p className="text-sm text-gray-600 truncate max-w-[200px]">
+                        {formData?.videoUrl}{" "}
+                      </p>
+                    </div>
+                    <button onClick={selectTutorialVideo} className="border border-gray-500 text-gray-700 px-2 py-1 rounded hover:bg-gray-100">Change Video Tutorial</button>
+                    <Input
+                      name="videoUrl"
+                      type="file"
+                      accept="video/*"
+                      ref={vidRef}
+                      onChange={handleTutorialChange}
+                      className="hidden"
+                    />
+                  </div>
+                  {/* <Label>Status</Label>
+                <Select value={formData.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Published">Published</SelectItem>
+                    <SelectItem value="Draft">Draft</SelectItem>
+                    <SelectItem value="Archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select> */}
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-lg">{selectedLecture.title}</h3>
-                <p className="text-slate-600 mt-1">{selectedLecture.description}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-slate-500">Course:</span>
-                  <div className="font-medium">{selectedLecture.course}</div>
-                </div>
-                <div>
-                  <span className="text-slate-500">Instructor:</span>
-                  <div className="font-medium">{selectedLecture.instructor}</div>
-                </div>
-                <div>
-                  <span className="text-slate-500">Duration:</span>
-                  <div className="font-medium">{selectedLecture.duration}</div>
-                </div>
-                <div>
-                  <span className="text-slate-500">Views:</span>
-                  <div className="font-medium">{selectedLecture.views.toLocaleString()}</div>
-                </div>
-              </div>
+
+              {/* Footer actions */}
               <div className="flex gap-2 pt-4">
-                <Button variant="outline" onClick={() => setShowViewModal(false)} className="flex-1">
-                  Close
+                <Button
+                  variant="outline"
+                  onClick={() => setShowViewModal(false)}
+                  className="flex-1"
+                >
+                  Cancel
                 </Button>
                 <Button
                   className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
-                  onClick={() => handleEditLecture(selectedLecture.id)}
+                  onClick={handleSubmit}
                 >
-                  Edit Lecture
+                  Save Changes
                 </Button>
               </div>
             </div>
@@ -456,7 +831,7 @@ export function LecturesPage() {
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-slate-600">
         <div>
-          Showing {filteredLectures.length} of {lectures.length} lectures
+          Showing {filteredLectures?.length} of {filteredLectures?.length} lectures
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" disabled>
@@ -468,5 +843,5 @@ export function LecturesPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
