@@ -209,7 +209,7 @@ export function LecturesPage() {
 }
 
 const { mutate : editBonusCourseMutate } = usePostFormData(
-    `http://localhost:5001/api/editBonusCourse/${selectedLecture?._id}`
+    `https://lms-backend-three-sandy.vercel.app/api/editBonusCourse/${selectedLecture?._id}`
   );
 
 
@@ -254,7 +254,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
 
   const { data, isLoading, error } = useFetchData(
     "bonus_courses",
-    "http://localhost:5001/api/getallBonusCourses"
+    "https://lms-backend-three-sandy.vercel.app/api/getallBonusCourses"
   );
 
   React.useEffect(() => {
@@ -264,7 +264,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
   }, [data]);
 
   const { mutate } = usePostFormData(
-    "http://localhost:5001/api/createBonusCourse"
+    "https://lms-backend-three-sandy.vercel.app/api/createBonusCourse"
   );
 
   const handleCreateLecture = async (formData: FormData) => {
@@ -316,7 +316,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
     isPending,
     isSuccess,
   } = useDeleteData(
-    `http://localhost:5001/api/deleteBonusCourse/${lectureIdToDelete}`
+    `https://lms-backend-three-sandy.vercel.app/api/deleteBonusCourse/${lectureIdToDelete}`
   );
 
   const handleDeleteLecture = (lectureId: number) => {
@@ -332,7 +332,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
   };
 
   const publishMutation = usePutData(
-    `http://localhost:5001/api/publishBonusCourse/${publisheLecture}`
+    `https://lms-backend-three-sandy.vercel.app/api/publishBonusCourse/${publisheLecture}`
   );
 
   queryClient.invalidateQueries(["bonus_courses"]);

@@ -56,7 +56,7 @@ useEffect(() => {
   console.log("initialDatainitialData", initialData)
       
 
-  const { mutate } = usePostData("http://localhost:5001/api/createJobs");
+  const { mutate } = usePostData("https://lms-backend-three-sandy.vercel.app/api/createJobs");
 
   const { mutate: updateJobPost } = usePutData(updateapiUrl || "");
 
@@ -65,7 +65,7 @@ useEffect(() => {
 
   const isEdit = !!initialData?._id;
   const updateUrl = initialData?._id
-    ? `http://localhost:5001/api/updateJobPost/${initialData._id}`
+    ? `https://lms-backend-three-sandy.vercel.app/api/updateJobPost/${initialData._id}`
     : null;
 
     console.log("updateUrlupdateUrl", updateUrl);

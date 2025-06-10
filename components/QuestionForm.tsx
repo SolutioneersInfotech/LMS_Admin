@@ -75,7 +75,7 @@ export default function QuestionForm({
     data: coursesData,
     isLoading,
     error,
-  } = useFetchData("courses", "http://localhost:5001/api/getCourses");
+  } = useFetchData("courses", "https://lms-backend-three-sandy.vercel.app/api/getCourses");
 
   if (coursesData) {
     console.log("coursescourses", coursesData);
@@ -84,7 +84,7 @@ export default function QuestionForm({
   const [updateapiUrl, setUpdateApiurl] = useState(null);
 
   const { mutate: createQuestionMutate } = usePostData(
-    "http://localhost:5001/api/createQuestion"
+    "https://lms-backend-three-sandy.vercel.app/api/createQuestion"
   );
 
   const { mutate: updateQuestion } = usePutData(updateapiUrl || "");
@@ -92,7 +92,7 @@ export default function QuestionForm({
   const onSubmit = (data: QuestionFormValues) => {
     const isEdit = !!initialData?._id;
     const updateUrl = initialData?._id
-      ? `http://localhost:5001/api/updateQuestion/${initialData._id}`
+      ? `https://lms-backend-three-sandy.vercel.app/api/updateQuestion/${initialData._id}`
       : null;
 
     setUpdateApiurl(updateUrl);

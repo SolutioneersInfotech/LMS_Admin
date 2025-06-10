@@ -51,7 +51,7 @@ export default function JobListPage() {
     data: jobs,
     isLoading,
     error,
-  } = useFetchData("allJobs", "http://localhost:5001/api/getAllJobs");
+  } = useFetchData("allJobs", "https://lms-backend-three-sandy.vercel.app/api/getAllJobs");
 
   useEffect(() => {
     if (jobs) {
@@ -69,7 +69,7 @@ export default function JobListPage() {
     isPending,
     isSuccess,
   } = useDeleteData(
-    `http://localhost:5001/api/deleteJobPost/${jobPostIdToDelete}`
+    `https://lms-backend-three-sandy.vercel.app/api/deleteJobPost/${jobPostIdToDelete}`
   );
 
   const handleDelete = (job_id) => {
