@@ -197,7 +197,7 @@ export function LecturesPage() {
 
   const { data, isLoading, error } = useFetchData(
     "bonus_courses",
-    "http://localhost:5001/api/admin/getallBonusCourses"
+    "http://localhost:5001/api/getallBonusCourses"
   );
 
   React.useEffect(() => {

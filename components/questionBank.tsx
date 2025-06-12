@@ -39,7 +39,7 @@ const QuestionBank = () => {
 
   const { data, isLoading, error } = useFetchData(
     "allQuestions",
-    "http://localhost:5001/api/admin/getAllQuestions"
+    "http://localhost:5001/api/getAllQuestions"
   );
   useEffect(() => {
     if (data) {

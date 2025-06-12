@@ -75,7 +75,7 @@ export default function QuestionForm({
     data: coursesData,
     isLoading,
     error,
-  } = useFetchData("courses", "http://localhost:5001/api/admin/getCourses");
+  } = useFetchData("courses", "http://localhost:5001/api/getCourses");
 
   if (coursesData) {
     console.log("coursescourses", coursesData);

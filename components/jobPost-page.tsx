@@ -51,7 +51,7 @@ export default function JobListPage() {
     data: jobs,
     isLoading,
     error,
-  } = useFetchData("allJobs", "http://localhost:5001/api/admin/getAllJobs");
+  } = useFetchData("allJobs", "http://localhost:5001/api/getAllJobs");
 
   useEffect(() => {
     if (jobs) {

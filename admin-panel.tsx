@@ -13,27 +13,48 @@ import { ForgotPasswordPage } from "./components/forgot-password-page"
 import { ChangePasswordPage } from "./components/change-password-page"
 import JobPostForm from "./components/jobPost-page"
 import QuestionBank from "./components/questionBank"
+import { useRouter } from "next/navigation"
 
 export default function AdminPanel() {
-  const [currentPage, setCurrentPage] = React.useState("dashboard")
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false)
-  const [authPage, setAuthPage] = React.useState<"login" | "forgot" | "change">("login")
+  const router = useRouter()
 
-  // Listen for hash changes to navigate between pages
+  const [currentPage, setCurrentPage] = React.useState("dashboard")
+  const [isAuthChecked, setIsAuthChecked] = React.useState(false)
+
+  // 1️⃣ Always run all hooks
+  React.useEffect(() => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("adminToken="))
+      ?.split("=")[1]
+
+    if (!token) {
+      router.push("/admin/login")
+    } else {
+      setIsAuthChecked(true)
+    }
+  }, [router])
+
+  // 2️⃣ Also always run this hook regardless of auth state
   React.useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.slice(1) // Remove the #
-      if (hash) {
-        setCurrentPage(hash)
-      }
+      const hash = window.location.hash.slice(1)
+      if (hash) setCurrentPage(hash)
     }
 
-    // Set initial page based on hash
     handleHashChange()
-
     window.addEventListener("hashchange", handleHashChange)
     return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
+
+  // 3️⃣ Safe conditional rendering after all hooks are declared
+  if (!isAuthChecked) {
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-600">
+        Loading Admin Panel...
+      </div>
+    )
+  }
 
   const renderCurrentPage = () => {
     switch (currentPage) {
@@ -52,27 +73,6 @@ export default function AdminPanel() {
         return <DashboardPage />
     }
   }
-
-  // const renderAuthPage = () => {
-  //   switch (authPage) {
-  //     case "forgot":
-  //       return <ForgotPasswordPage onBackToLogin={() => setAuthPage("login")} />
-  //     case "change":
-  //       return <ChangePasswordPage onPasswordChanged={() => setAuthPage("login")} />
-  //     case "login":
-  //     default:
-  //       return <LoginPage onLogin={() => setIsAuthenticated(true)} onForgotPassword={() => setAuthPage("forgot")} />
-  //   }
-  // }
-
-  // if (!isAuthenticated) {
-  //   return (
-  //     <>
-  //       {renderAuthPage()}
-  //       <Toaster />
-  //     </>
-  //   )
-  // }
 
   return (
     <SidebarProvider defaultOpen={true}>
