@@ -58,7 +58,7 @@ const QuestionBank = () => {
   };
 
   const { mutate: deleteMutate } = useDeleteData(
-    `https://lms-backend-three-sandy.vercel.app/api/deleteQuestion/${questionIDToDelete}`
+    `https://lms-backend-three-sandy.vercel.app/api/admin/deleteQuestion/${questionIDToDelete}`
   );
 
   const handleDelete = (questionId) => {

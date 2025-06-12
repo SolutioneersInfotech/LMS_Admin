@@ -69,7 +69,7 @@ export default function JobListPage() {
     isPending,
     isSuccess,
   } = useDeleteData(
-    `https://lms-backend-three-sandy.vercel.app/api/deleteJobPost/${jobPostIdToDelete}`
+    `https://lms-backend-three-sandy.vercel.app/api/admin/deleteJobPost/${jobPostIdToDelete}`
   );
 
   const handleDelete = (job_id) => {

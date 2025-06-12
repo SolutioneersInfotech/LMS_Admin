@@ -84,7 +84,7 @@ export default function QuestionForm({
   const [updateapiUrl, setUpdateApiurl] = useState(null);
 
   const { mutate: createQuestionMutate } = usePostData(
-    "https://lms-backend-three-sandy.vercel.app/api/createQuestion"
+    "https://lms-backend-three-sandy.vercel.app/api/admin/createQuestion"
   );
 
   const { mutate: updateQuestion } = usePutData(updateapiUrl || "");
@@ -92,7 +92,7 @@ export default function QuestionForm({
   const onSubmit = (data: QuestionFormValues) => {
     const isEdit = !!initialData?._id;
     const updateUrl = initialData?._id
-      ? `https://lms-backend-three-sandy.vercel.app/api/updateQuestion/${initialData._id}`
+      ? `https://lms-backend-three-sandy.vercel.app/api/admin/updateQuestion/${initialData._id}`
       : null;
 
     setUpdateApiurl(updateUrl);

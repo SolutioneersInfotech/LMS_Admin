@@ -168,7 +168,7 @@ export function CoursesPage() {
     setNewCourse((prev) => ({ ...prev, [field]: value }));
   };
 
-  const { mutate } = usePostData("https://lms-backend-three-sandy.vercel.app/api/createCourse");
+  const { mutate } = usePostData("https://lms-backend-three-sandy.vercel.app/api/admin/createCourse");
 
   const handleCreate = () => {
     const { title, description, category } = newcourse;
@@ -197,7 +197,7 @@ export function CoursesPage() {
   };
 
   const publishMutation = usePutData(
-    `https://lms-backend-three-sandy.vercel.app/api/publishCourse/${courseIdToPublish}`
+    `https://lms-backend-three-sandy.vercel.app/api/admin/publishCourse/${courseIdToPublish}`
   );
 
   const handlePublishCourse = (courseId: number) => {
@@ -234,7 +234,7 @@ export function CoursesPage() {
     isPending,
     isSuccess,
   } = useDeleteData(
-    `https://lms-backend-three-sandy.vercel.app/api/deleteCourse/${courseIdToDelete}`
+    `https://lms-backend-three-sandy.vercel.app/api/admin/deleteCourse/${courseIdToDelete}`
   );
 
   const handleDeleteCourse = (courseId: number) => {

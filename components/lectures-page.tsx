@@ -155,7 +155,7 @@ export function LecturesPage() {
   };
 
 const { mutate : editBonusCourseMutate } = usePostFormData(
-    `https://lms-backend-three-sandy.vercel.app/api/editBonusCourse/${selectedLecture?._id}`
+    `https://lms-backend-three-sandy.vercel.app/api/admin/editBonusCourse/${selectedLecture?._id}`
   );
 
   const handleSubmit = () => {
@@ -207,7 +207,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
   }, [data]);
 
   const { mutate } = usePostFormData(
-    "https://lms-backend-three-sandy.vercel.app/api/createBonusCourse"
+    "https://lms-backend-three-sandy.vercel.app/api/admin/createBonusCourse"
   );
 
   const handleCreateLecture = async (formData: FormData) => {
@@ -257,7 +257,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
     isPending,
     isSuccess,
   } = useDeleteData(
-    `https://lms-backend-three-sandy.vercel.app/api/deleteBonusCourse/${lectureIdToDelete}`
+    `https://lms-backend-three-sandy.vercel.app/api/admin/deleteBonusCourse/${lectureIdToDelete}`
   );
 
   const handleDeleteLecture = (lectureId: number) => {
@@ -273,7 +273,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
   };
 
   const publishMutation = usePutData(
-    `https://lms-backend-three-sandy.vercel.app/api/publishBonusCourse/${publisheLecture}`
+    `https://lms-backend-three-sandy.vercel.app/api/admin/publishBonusCourse/${publisheLecture}`
   );
 
   queryClient.invalidateQueries(["bonus_courses"]);
