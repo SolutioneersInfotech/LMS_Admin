@@ -210,7 +210,7 @@ export function CoursesPage() {
 
   const { mutate: updateCourseMutate } = usePutData(
     selectedCourseId
-      ? `https://lms-backend-three-sandy.vercel.app/api/updateCourse/${selectedCourseId}`
+      ? `https://lms-backend-three-sandy.vercel.app/api/admin/updateCourse/${selectedCourseId}`
       : ""
   );
 
