@@ -39,7 +39,7 @@ const QuestionBank = () => {
 
   const { data, isLoading, error } = useFetchData(
     "allQuestions",
-    "http://localhost:5001/api/getAllQuestions"
+    "http://localhost:5001/api/admin/getAllQuestions"
   );
   useEffect(() => {
     if (data) {
@@ -58,7 +58,7 @@ const QuestionBank = () => {
   };
 
   const { mutate: deleteMutate } = useDeleteData(
-    `http://localhost:5001/api/deleteQuestion/${questionIDToDelete}`
+    `http://localhost:5001/api/admin/deleteQuestion/${questionIDToDelete}`
   );
 
   const handleDelete = (questionId) => {

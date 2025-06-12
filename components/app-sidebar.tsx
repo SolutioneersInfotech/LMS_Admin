@@ -33,7 +33,8 @@ import Link from "next/link"
 const navigationItems = [
   {
     title: "Dashboard",
-    url: "#dashboard",
+    // url: "#dashboard",
+    url: "#login",
     icon: Home,
   },
   {

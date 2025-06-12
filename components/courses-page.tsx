@@ -148,7 +148,7 @@ export function CoursesPage() {
     data: coursesData,
     isLoading,
     error,
-  } = useFetchData("courses", "http://localhost:5001/api/getCourses");
+  } = useFetchData("courses", "http://localhost:5001/api/admin/getCourses");
 
   if (coursesData) {
     console.log("coursescourses", coursesData);
@@ -168,7 +168,7 @@ export function CoursesPage() {
     setNewCourse((prev) => ({ ...prev, [field]: value }));
   };
 
-  const { mutate } = usePostData("http://localhost:5001/api/createCourse");
+  const { mutate } = usePostData("http://localhost:5001/api/admin/createCourse");
 
   const handleCreate = () => {
     const { title, description, category } = newcourse;
@@ -197,17 +197,20 @@ export function CoursesPage() {
   };
 
   const publishMutation = usePutData(
-    `http://localhost:5001/api/publishCourse/${courseIdToPublish}`
+    `http://localhost:5001/api/admin/publishCourse/${courseIdToPublish}`
   );
 
   const handlePublishCourse = (courseId: number) => {
     setCourseIdToPublish(courseId);
     publishMutation.mutate();
+    queryClient.invalidateQueries(["courses"]);
   };
+
+  queryClient.invalidateQueries(["courses"]);
 
   const { mutate: updateCourseMutate } = usePutData(
     selectedCourseId
-      ? `http://localhost:5001/api/updateCourse/${selectedCourseId}`
+      ? `http://localhost:5001/api/admin/updateCourse/${selectedCourseId}`
       : ""
   );
 
@@ -226,14 +229,12 @@ export function CoursesPage() {
     }
   };
 
-  queryClient.invalidateQueries(["courses"]);
-
   const {
     mutate: deleteCourse,
     isPending,
     isSuccess,
   } = useDeleteData(
-    `http://localhost:5001/api/deleteCourse/${courseIdToDelete}`
+    `http://localhost:5001/api/admin/deleteCourse/${courseIdToDelete}`
   );
 
   const handleDeleteCourse = (courseId: number) => {
@@ -592,6 +593,7 @@ export function CoursesPage() {
 
             // If validation passes
             updateCourseMutate(updatedCourse);
+            queryClient.invalidateQueries(["courses"]);
 
             toast({
               title: "Course Updated",

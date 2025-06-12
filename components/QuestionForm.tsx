@@ -75,7 +75,7 @@ export default function QuestionForm({
     data: coursesData,
     isLoading,
     error,
-  } = useFetchData("courses", "http://localhost:5001/api/getCourses");
+  } = useFetchData("courses", "http://localhost:5001/api/admin/getCourses");
 
   if (coursesData) {
     console.log("coursescourses", coursesData);
@@ -84,7 +84,7 @@ export default function QuestionForm({
   const [updateapiUrl, setUpdateApiurl] = useState(null);
 
   const { mutate: createQuestionMutate } = usePostData(
-    "http://localhost:5001/api/createQuestion"
+    "http://localhost:5001/api/admin/createQuestion"
   );
 
   const { mutate: updateQuestion } = usePutData(updateapiUrl || "");
@@ -92,7 +92,7 @@ export default function QuestionForm({
   const onSubmit = (data: QuestionFormValues) => {
     const isEdit = !!initialData?._id;
     const updateUrl = initialData?._id
-      ? `http://localhost:5001/api/updateQuestion/${initialData._id}`
+      ? `http://localhost:5001/api/admin/updateQuestion/${initialData._id}`
       : null;
 
     setUpdateApiurl(updateUrl);
@@ -160,10 +160,10 @@ export default function QuestionForm({
                         {allModules
                           .filter(
                             (item) =>
-                              item.moduleTitle && item.moduleTitle.trim() !== ""
+                              item?.moduleTitle && item?.moduleTitle.trim() !== ""
                           )
                           .map((item, index) => (
-                            <SelectItem key={index} value={item.moduleTitle}>
+                            <SelectItem key={index} value={item?.moduleTitle}>
                               {item.moduleTitle}
                             </SelectItem>
                           ))}
@@ -211,8 +211,8 @@ export default function QuestionForm({
                       </SelectTrigger>
                       <SelectContent>
                         {filteredTopics.map((item, index) => (
-                          <SelectItem key={index} value={item.topicTitle}>
-                            {item.topicTitle}
+                          <SelectItem key={index} value={item?.topicTitle}>
+                            {item?.topicTitle}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -56,67 +56,10 @@ import { useFetchData } from "@/hooks/useFetchData";
 import { usePutData } from "@/hooks/usePutData";
 import { useQueryClient } from "@tanstack/react-query";
 import { uploadToCloudinary } from "@/lib/utils";
-import HLSVideoPlayer from "../components/hls";
+import HLSVideoPlayer from "./VideoPlayer";
 import { useDeleteData } from "@/hooks/useDeleteData";
 import JobPostForm from "./jobPost-page";
-// const lectures = [
-//   {
-//     id: 1,
-//     title: "Introduction to React Components",
-//     course: "React Fundamentals",
-//     instructor: "Sarah Johnson",
-//     instructorAvatar: "/placeholder.svg?height=32&width=32",
-//     duration: "45:30",
-//     views: 1234,
-//     status: "Published",
-//     uploadDate: "2024-01-15",
-//     thumbnail: "/placeholder.svg?height=60&width=80",
-//     description:
-//       "Learn the basics of React components and how to create your first component.",
-//   },
-//   {
-//     id: 2,
-//     title: "Understanding JSX Syntax",
-//     course: "React Fundamentals",
-//     instructor: "Sarah Johnson",
-//     instructorAvatar: "/placeholder.svg?height=32&width=32",
-//     duration: "32:15",
-//     views: 987,
-//     status: "Published",
-//     uploadDate: "2024-01-18",
-//     thumbnail: "/placeholder.svg?height=60&width=80",
-//     description:
-//       "Deep dive into JSX syntax and best practices for writing clean React code.",
-//   },
-//   {
-//     id: 3,
-//     title: "State Management with Hooks",
-//     course: "React Fundamentals",
-//     instructor: "Sarah Johnson",
-//     instructorAvatar: "/placeholder.svg?height=32&width=32",
-//     duration: "58:42",
-//     views: 756,
-//     status: "Draft",
-//     uploadDate: "2024-01-20",
-//     thumbnail: "/placeholder.svg?height=60&width=80",
-//     description:
-//       "Master React hooks for effective state management in your applications.",
-//   },
-//   {
-//     id: 4,
-//     title: "Advanced JavaScript Concepts",
-//     course: "Advanced JavaScript",
-//     instructor: "Mike Chen",
-//     instructorAvatar: "/placeholder.svg?height=32&width=32",
-//     duration: "67:20",
-//     views: 2156,
-//     status: "Published",
-//     uploadDate: "2024-01-12",
-//     thumbnail: "/placeholder.svg?height=60&width=80",
-//     description:
-//       "Explore advanced JavaScript concepts including closures, prototypes, and async programming.",
-//   },
-// ];
+import VideoPlayer from "./VideoPlayer";
 
 export function LecturesPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -129,7 +72,11 @@ export function LecturesPage() {
   const { toast } = useToast();
   const [bonusCourses, setBonusCourses] = React.useState(null);
   const [publisheLecture, setPublishLecture] = React.useState(null);
-  const [selectedVideo, setSelectedVideo] = React.useState<string | null>(null);
+  const [selectedVideoData, setSelectedVideoData] = React.useState<{
+    videoId: string;
+    otp: string;
+    playbackInfo: string;
+  } | null>(null);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [lectureIdToDelete, setLectureIdToDelete] = React.useState(null);
 
@@ -140,9 +87,8 @@ export function LecturesPage() {
     // duration: "",
     status: "Published",
     thumbnail_image: "",
-    videoUrl: null as File | null, 
+    videoUrl: null as File | null,
   });
-
 
   React.useEffect(() => {
     if (selectedLecture) {
@@ -168,73 +114,70 @@ export function LecturesPage() {
     setFormData({ ...formData, status: value });
   };
 
-  const thumbnailRef = React.useRef(null)
+  const thumbnailRef = React.useRef(null);
 
-  const changeThubnailImage = (e)=>{
+  const changeThubnailImage = (e) => {
     thumbnailRef?.current?.click();
-  }
+  };
 
   // const vidRef = React.useRef(null);
 
-
-  const handleThumbnailEdit = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleThumbnailEdithandleThumbnailEdit")
+  const handleThumbnailEdit = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    console.log("handleThumbnailEdithandleThumbnailEdit");
     const file = e.target.files?.[0];
     if (file) {
-      console.log("file exist", file)
-          const thumbnail_image = await uploadToCloudinary(file);
-          console.log("thumbnail_image",thumbnail_image)
-          if (thumbnail_image) {
-      setFormData((prev) => ({
-        ...prev,
-        thumbnail_image,
-      }));
+      console.log("file exist", file);
+      const thumbnail_image = await uploadToCloudinary(file);
+      console.log("thumbnail_image", thumbnail_image);
+      if (thumbnail_image) {
+        setFormData((prev) => ({
+          ...prev,
+          thumbnail_image,
+        }));
+      }
+    }
+
+    // const selectTutorialVideo = ()=>{
+    //   vidRef?.current?.click();
+    // }
+
+    // const handleTutorialChange = (e)=>{
+    //   const file = e.target.files?.[0];
+    //   if (file){
+    //     setFormData((prev)=>({
+    //     ...prev , file
+    //   }))
+    //   }
+
+    // }
   };
-}
 
-
-// const selectTutorialVideo = ()=>{
-//   vidRef?.current?.click();
-// }
-
-// const handleTutorialChange = (e)=>{
-//   const file = e.target.files?.[0];
-//   if (file){
-//     setFormData((prev)=>({
-//     ...prev , file
-//   }))
-//   }
-  
-// }
-}
-
-const { mutate : editBonusCourseMutate } = usePostFormData(
-    `http://localhost:5001/api/editBonusCourse/${selectedLecture?._id}`
+  const { mutate: editBonusCourseMutate } = usePostFormData(
+    `http://localhost:5001/api/admin/editBonusCourse/${selectedLecture?._id}`
   );
-
 
   const handleSubmit = () => {
     // handleEditLectureSubmit(formData)
     console.log("formData in handleSubmit", formData);
 
-     const data = new FormData();
+    const data = new FormData();
 
-  data.append("title", formData.title);
-  data.append("description", formData.description);
-  data.append("instructorName", formData.instructorName);
-  data.append("status", formData.status);
-  data.append("thumbnail_image", formData.thumbnail_image);
+    data.append("title", formData.title);
+    data.append("description", formData.description);
+    data.append("instructorName", formData.instructorName);
+    data.append("status", formData.status);
+    data.append("thumbnail_image", formData.thumbnail_image);
 
-  // Only append if file exists
-  if (formData.videoUrl instanceof File) {
-  data.append("video", formData.videoUrl); // ✅ safe
-} else if (formData.videoUrl && formData.videoUrl.file instanceof File) {
-  data.append("video", formData.videoUrl.file); // ✅ handle nested case
-} else {
-  console.warn("Invalid video file. Not appending.");
-}
-
-
+    // Only append if file exists
+    if (formData.videoUrl instanceof File) {
+      data.append("video", formData.videoUrl); // ✅ safe
+    } else if (formData.videoUrl && formData.videoUrl.file instanceof File) {
+      data.append("video", formData.videoUrl.file); // ✅ handle nested case
+    } else {
+      console.warn("Invalid video file. Not appending.");
+    }
 
     editBonusCourseMutate(data);
 
@@ -246,15 +189,15 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
   const filteredLectures = bonusCourses?.filter((lecture) => {
     const matchesSearch =
       lecture.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lecture.instructorName.toLowerCase().includes(searchTerm.toLowerCase()) ;
+      lecture.instructorName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || lecture.status.toLowerCase() === statusFilter;
-    return matchesSearch && matchesStatus ;
+    return matchesSearch && matchesStatus;
   });
 
   const { data, isLoading, error } = useFetchData(
     "bonus_courses",
-    "http://localhost:5001/api/getallBonusCourses"
+    "http://localhost:5001/api/admin/getallBonusCourses"
   );
 
   React.useEffect(() => {
@@ -264,7 +207,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
   }, [data]);
 
   const { mutate } = usePostFormData(
-    "http://localhost:5001/api/createBonusCourse"
+    "http://localhost:5001/api/admin/createBonusCourse"
   );
 
   const handleCreateLecture = async (formData: FormData) => {
@@ -295,8 +238,6 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
     setShowCreateModal(false);
   };
 
-
-
   const handleViewDetails = (lecture: (typeof lectures)[0]) => {
     console.log("jgghcghcghcghchgchg", lecture);
     setSelectedLecture(lecture);
@@ -316,7 +257,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
     isPending,
     isSuccess,
   } = useDeleteData(
-    `http://localhost:5001/api/deleteBonusCourse/${lectureIdToDelete}`
+    `http://localhost:5001/api/admin/deleteBonusCourse/${lectureIdToDelete}`
   );
 
   const handleDeleteLecture = (lectureId: number) => {
@@ -332,7 +273,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
   };
 
   const publishMutation = usePutData(
-    `http://localhost:5001/api/publishBonusCourse/${publisheLecture}`
+    `http://localhost:5001/api/admin/publishBonusCourse/${publisheLecture}`
   );
 
   queryClient.invalidateQueries(["bonus_courses"]);
@@ -348,27 +289,39 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
 
   const vidRef = React.useRef(null);
 
-
-  const selectTutorialVideo = ()=>{
+  const selectTutorialVideo = () => {
     vidRef?.current?.click();
-  }
+  };
 
-
-  const handleTutorialChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
+  const handleTutorialChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        videoUrl : file,
-      }));
+      if (file) {
+        setFormData((prev) => ({
+          ...prev,
+          videoUrl: file,
+        }));
+      }
     }
-  }
-};
+  };
 
- 
+  const handleSelectedVideo = async (lectureVideoUrl) => {
+    const res = await fetch(
+      `http://localhost:5001/api/vdocipher/otp/${lectureVideoUrl}`
+    );
+    const data = await res.json();
 
-  console.log("FormDatakhggkgkbkjbkjbkjbkjb ", formData)
+    setSelectedVideoData({
+      videoId: lectureVideoUrl,
+      otp: data.otp,
+      playbackInfo: data.playbackInfo,
+    });
+    setIsDialogOpen(true);
+  };
+
+  console.log("FormDatakhggkgkbkjbkjbkjbkjb ", formData);
 
   return (
     <div className="space-y-6">
@@ -476,7 +429,6 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
               <SelectItem value="draft">Draft</SelectItem>
             </SelectContent>
           </Select>
-
         </div>
 
         {/* More Filters Panel */}
@@ -572,7 +524,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
               <TableRow
                 key={lecture._id}
                 onClick={() => {
-                  setSelectedVideo(lecture.videoUrl);
+                  handleSelectedVideo(lecture.videoUrl);
                   setIsDialogOpen(true);
                 }}
                 className="hover:bg-slate-50 transition-colors cursor-pointer"
@@ -589,7 +541,7 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
                         <Play className="h-4 w-4 text-white bg-black bg-opacity-50 rounded-full p-1" />
                       </div>
                     </div>
-                    <div> 
+                    <div>
                       <div className="font-medium text-slate-900">
                         {lecture.title}
                       </div>
@@ -664,13 +616,13 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => handleEditLecture(lecture._id)  }
+                        onClick={() => handleEditLecture(lecture._id)}
                       >
                         <Eye className="mr-2 h-4 w-4" />
                         View Details
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() =>  handleViewDetails(lecture)}
+                        onClick={() => handleViewDetails(lecture)}
                       >
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Lecture
@@ -705,7 +657,12 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
             <DialogTitle>Lecture Preview</DialogTitle>
           </DialogHeader>
           <div className="aspect-video w-full">
-            {selectedVideo && <HLSVideoPlayer videoUrl={selectedVideo} />}
+            {selectedVideoData && (
+              <VideoPlayer
+                otp={selectedVideoData.otp}
+                playbackInfo={selectedVideoData.playbackInfo}
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -764,7 +721,12 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
                         {formData.thumbnail_image}
                       </p>
                     </div>
-                    <button onClick={changeThubnailImage} className="border border-gray-500 text-gray-700 px-2 py-1 rounded hover:bg-gray-100">Change Thumbnail Image</button>
+                    <button
+                      onClick={changeThubnailImage}
+                      className="border border-gray-500 text-gray-700 px-2 py-1 rounded hover:bg-gray-100"
+                    >
+                      Change Thumbnail Image
+                    </button>
                     <Input
                       name="thumbnail_image"
                       ref={thumbnailRef}
@@ -780,10 +742,17 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
                       </span>
                       <span className="w-2 h-2 rounded-full bg-green-500"></span>
                       <p className="text-sm text-gray-600 truncate max-w-[200px]">
-                        {formData?.videoUrl}{" "}
+                        {typeof formData?.videoUrl === "string"
+                          ? formData.videoUrl
+                          : formData?.videoUrl?.name}
                       </p>
                     </div>
-                    <button onClick={selectTutorialVideo} className="border border-gray-500 text-gray-700 px-2 py-1 rounded hover:bg-gray-100">Change Video Tutorial</button>
+                    <button
+                      onClick={selectTutorialVideo}
+                      className="border border-gray-500 text-gray-700 px-2 py-1 rounded hover:bg-gray-100"
+                    >
+                      Change Video Tutorial
+                    </button>
                     <Input
                       name="videoUrl"
                       type="file"
@@ -831,7 +800,8 @@ const { mutate : editBonusCourseMutate } = usePostFormData(
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-slate-600">
         <div>
-          Showing {filteredLectures?.length} of {filteredLectures?.length} lectures
+          Showing {filteredLectures?.length} of {filteredLectures?.length}{" "}
+          lectures
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" disabled>

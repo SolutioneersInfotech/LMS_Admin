@@ -8,43 +8,49 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import { usePostData } from "@/hooks/usePostData"
+import { useRouter } from "next/navigation"
 
 interface LoginPageProps {
   onLogin: () => void
   onForgotPassword: () => void
 }
 
-export function LoginPage({ onLogin, onForgotPassword }: LoginPageProps) {
+export default  function LoginPage({ onLogin, onForgotPassword }: LoginPageProps) {
   const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [formData, setFormData] = React.useState({
     email: "",
     password: "",
-    rememberMe: false,
+    // rememberMe: false,
   })
-  const { toast } = useToast()
+
+      const router = useRouter()
+
+  const { toast } = useToast();
+
+    const { mutate } = usePostData("http://localhost:5001/api/admin/loginAdmin");  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      if (formData.email === "admin@eduplatform.com" && formData.password === "admin123") {
+    mutate(formData, {
+      onSuccess: (response) => {
+        console.log("Admin Login Successfully:", response);
+        router.push("/")
         toast({
-          title: "Login Successful",
+          title: "Admin Login Successful",
           description: "Welcome back to EduAdmin!",
-        })
-        onLogin()
-      } else {
+        });
+      },
+      onError: (error: any) => {
+        console.error("Failed to login", error);
         toast({
-          title: "Login Failed",
-          description: "Invalid email or password. Please try again.",
-          variant: "destructive",
-        })
-      }
-      setIsLoading(false)
-    }, 1500)
+          title: "Admin Login Failed",
+        //   description: "Welcome back to EduAdmin!",
+        });
+      },
+    });        
   }
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -137,8 +143,8 @@ export function LoginPage({ onLogin, onForgotPassword }: LoginPageProps) {
                 </Button>
               </div>
 
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign In"}
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" >
+                {/* {isLoading ? "Signing in..." : "Sign In"} */} Login 
               </Button>
             </form>
 

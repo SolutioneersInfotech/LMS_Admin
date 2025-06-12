@@ -9,7 +9,6 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/toaster"
 import { LecturesPage } from "./components/lectures-page"
 import { SettingsPage } from "./components/settings-page"
-import { LoginPage } from "./components/login-page"
 import { ForgotPasswordPage } from "./components/forgot-password-page"
 import { ChangePasswordPage } from "./components/change-password-page"
 import JobPostForm from "./components/jobPost-page"
@@ -54,26 +53,26 @@ export default function AdminPanel() {
     }
   }
 
-  const renderAuthPage = () => {
-    switch (authPage) {
-      case "forgot":
-        return <ForgotPasswordPage onBackToLogin={() => setAuthPage("login")} />
-      case "change":
-        return <ChangePasswordPage onPasswordChanged={() => setAuthPage("login")} />
-      case "login":
-      default:
-        return <LoginPage onLogin={() => setIsAuthenticated(true)} onForgotPassword={() => setAuthPage("forgot")} />
-    }
-  }
+  // const renderAuthPage = () => {
+  //   switch (authPage) {
+  //     case "forgot":
+  //       return <ForgotPasswordPage onBackToLogin={() => setAuthPage("login")} />
+  //     case "change":
+  //       return <ChangePasswordPage onPasswordChanged={() => setAuthPage("login")} />
+  //     case "login":
+  //     default:
+  //       return <LoginPage onLogin={() => setIsAuthenticated(true)} onForgotPassword={() => setAuthPage("forgot")} />
+  //   }
+  // }
 
-  if (!isAuthenticated) {
-    return (
-      <>
-        {renderAuthPage()}
-        <Toaster />
-      </>
-    )
-  }
+  // if (!isAuthenticated) {
+  //   return (
+  //     <>
+  //       {renderAuthPage()}
+  //       <Toaster />
+  //     </>
+  //   )
+  // }
 
   return (
     <SidebarProvider defaultOpen={true}>
