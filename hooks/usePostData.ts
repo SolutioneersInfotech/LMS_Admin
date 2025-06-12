@@ -17,6 +17,7 @@ export const usePostData = <T = any, V = any>(url: string, options?: PostOptions
         ...headers,
       },
       body: JSON.stringify(data),
+      credentials: "include",
     })
 
     if (!res.ok) {

@@ -160,10 +160,10 @@ export default function QuestionForm({
                         {allModules
                           .filter(
                             (item) =>
-                              item.moduleTitle && item.moduleTitle.trim() !== ""
+                              item?.moduleTitle && item?.moduleTitle.trim() !== ""
                           )
                           .map((item, index) => (
-                            <SelectItem key={index} value={item.moduleTitle}>
+                            <SelectItem key={index} value={item?.moduleTitle}>
                               {item.moduleTitle}
                             </SelectItem>
                           ))}
@@ -211,8 +211,8 @@ export default function QuestionForm({
                       </SelectTrigger>
                       <SelectContent>
                         {filteredTopics.map((item, index) => (
-                          <SelectItem key={index} value={item.topicTitle}>
-                            {item.topicTitle}
+                          <SelectItem key={index} value={item?.topicTitle}>
+                            {item?.topicTitle}
                           </SelectItem>
                         ))}
                       </SelectContent>

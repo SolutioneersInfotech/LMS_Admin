@@ -203,7 +203,10 @@ export function CoursesPage() {
   const handlePublishCourse = (courseId: number) => {
     setCourseIdToPublish(courseId);
     publishMutation.mutate();
+    queryClient.invalidateQueries(["courses"]);
   };
+
+  queryClient.invalidateQueries(["courses"]);
 
   const { mutate: updateCourseMutate } = usePutData(
     selectedCourseId
@@ -225,8 +228,6 @@ export function CoursesPage() {
       setShowEditModal(true);
     }
   };
-
-  queryClient.invalidateQueries(["courses"]);
 
   const {
     mutate: deleteCourse,
@@ -592,6 +593,7 @@ export function CoursesPage() {
 
             // If validation passes
             updateCourseMutate(updatedCourse);
+            queryClient.invalidateQueries(["courses"]);
 
             toast({
               title: "Course Updated",
