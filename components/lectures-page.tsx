@@ -60,6 +60,7 @@ import HLSVideoPlayer from "./VideoPlayer";
 import { useDeleteData } from "@/hooks/useDeleteData";
 import JobPostForm from "./jobPost-page";
 import VideoPlayer from "./VideoPlayer";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
 
 export function LecturesPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -79,6 +80,7 @@ export function LecturesPage() {
   } | null>(null);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [lectureIdToDelete, setLectureIdToDelete] = React.useState(null);
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
 
   const [formData, setFormData] = React.useState({
     title: "",
@@ -260,11 +262,14 @@ export function LecturesPage() {
     `http://localhost:5001/api/admin/deleteBonusCourse/${lectureIdToDelete}`
   );
 
+  const confirmDelete = () => {
+    deleteBonusCourse(); // Your mutation
+  };
+
   const handleDeleteLecture = (lectureId: number) => {
     console.log("Delete lecture:", lectureId);
     setLectureIdToDelete(lectureId);
-
-    deleteBonusCourse();
+    setIsConfirmOpen(true);
     // toast({
     //   title: "Lecture Deleted",
     //   description: "The lecture has been successfully deleted.",
@@ -634,14 +639,22 @@ export function LecturesPage() {
                           <Play className="mr-2 h-4 w-4" />
                           Publish
                         </DropdownMenuItem>
-                      )}
+                      )}{" "}
                       <DropdownMenuItem
                         className="text-red-600"
-                        onClick={() => handleDeleteLecture(lecture._id)}
+                        onSelect={(e) => {
+                          e.preventDefault(); // prevent default close
+                          handleDeleteLecture(lecture._id);
+                        }}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete Lecture
                       </DropdownMenuItem>
+                      <ConfirmDialog
+                        open={isConfirmOpen}
+                        onOpenChange={setIsConfirmOpen}
+                        onConfirm={confirmDelete}
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

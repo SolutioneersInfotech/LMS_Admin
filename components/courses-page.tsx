@@ -60,6 +60,7 @@ import { useFetchData } from "@/hooks/useFetchData";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePutData } from "@/hooks/usePutData";
 import { useDeleteData } from "@/hooks/useDeleteData";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
 
 const courses = [
   {
@@ -134,6 +135,8 @@ export function CoursesPage() {
     category: "",
   });
 
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+
   const [newcourse, setNewCourse] = React.useState({
     title: "",
     description: "",
@@ -168,7 +171,9 @@ export function CoursesPage() {
     setNewCourse((prev) => ({ ...prev, [field]: value }));
   };
 
-  const { mutate } = usePostData("http://localhost:5001/api/admin/createCourse");
+  const { mutate } = usePostData(
+    "http://localhost:5001/api/admin/createCourse"
+  );
 
   const handleCreate = () => {
     const { title, description, category } = newcourse;
@@ -239,9 +244,12 @@ export function CoursesPage() {
 
   const handleDeleteCourse = (courseId: number) => {
     setCourseIdToDelete(courseId);
-    deleteCourse();
-    queryClient.invalidateQueries(["courses"]);
     // Add your delete course logic here
+  };
+
+  const confirmDelete = () => {
+    deleteCourse(); // Your mutation
+    queryClient.invalidateQueries(["courses"]);
   };
 
   return (
@@ -432,11 +440,20 @@ export function CoursesPage() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-red-600"
-                        onClick={() => handleDeleteCourse(course._id)}
+                        onSelect={(e) => {
+                          e.preventDefault(); // prevent default close
+                          handleDeleteCourse(course._id);
+                          setIsConfirmOpen(true);
+                        }}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete Course
                       </DropdownMenuItem>
+                      <ConfirmDialog
+                        open={isConfirmOpen}
+                        onOpenChange={setIsConfirmOpen}
+                        onConfirm={confirmDelete}
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
