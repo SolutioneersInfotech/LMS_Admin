@@ -19,7 +19,7 @@ export function SettingsPage() {
     // General Settings
     siteName: "EduAdmin LMS",
     siteDescription: "Advanced Learning Management System",
-    adminEmail: "admin@eduplatform.com",
+    adminEmail: "admin@example.com",
     timezone: "UTC",
     language: "en",
 
@@ -535,7 +535,7 @@ export function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="admin@eduplatform.com" />
+                  <Input id="email" type="email" defaultValue="admin@example.com" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone</Label>

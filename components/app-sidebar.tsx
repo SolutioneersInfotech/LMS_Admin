@@ -111,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-slate-900 truncate">Admin User</p>
-            <p className="text-xs text-slate-500 truncate">admin@eduplatform.com</p>
+            <p className="text-xs text-slate-500 truncate">admin@example.com</p>
           </div>
         </div>
       </SidebarFooter>

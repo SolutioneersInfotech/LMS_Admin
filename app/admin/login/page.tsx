@@ -16,13 +16,19 @@ interface LoginPageProps {
   onForgotPassword: () => void
 }
 
+type FormData = {
+  email:string,
+    password: string,
+     rememberMe:boolean
+}
+
 export default  function LoginPage({ onLogin, onForgotPassword }: LoginPageProps) {
   const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<FormData>({
     email: "",
     password: "",
-    // rememberMe: false,
+    rememberMe: false,
   })
 
       const router = useRouter()
@@ -88,7 +94,7 @@ export default  function LoginPage({ onLogin, onForgotPassword }: LoginPageProps
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@eduplatform.com"
+                    placeholder="admin@example.com"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     className="pl-10 border-slate-200 focus:border-blue-300"
@@ -153,10 +159,10 @@ export default  function LoginPage({ onLogin, onForgotPassword }: LoginPageProps
               <p className="text-sm font-medium text-slate-700 mb-2">Demo Credentials:</p>
               <div className="text-sm text-slate-600 space-y-1">
                 <p>
-                  <strong>Email:</strong> admin@eduplatform.com
+                  <strong>Email:</strong> admin@example.com
                 </p>
                 <p>
-                  <strong>Password:</strong> admin123
+                  <strong>Password:</strong> securepassword123
                 </p>
               </div>
             </div>

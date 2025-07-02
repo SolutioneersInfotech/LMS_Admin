@@ -185,7 +185,7 @@ export function CoursesPage() {
       onSuccess: (data) => {
         console.log("Course created:", data);
         setNewCourse({ title: "", description: "", category: "" });
-        queryClient.invalidateQueries(["courses"]);
+        queryClient.invalidateQueries({queryKey: ["courses"]});
         // optionally close modal or refresh list here
         setShowCreateModal(false);
       },
@@ -208,10 +208,10 @@ export function CoursesPage() {
   const handlePublishCourse = (courseId: number) => {
     setCourseIdToPublish(courseId);
     publishMutation.mutate();
-    queryClient.invalidateQueries(["courses"]);
+    queryClient.invalidateQueries({queryKey: ["courses"]});
   };
 
-  queryClient.invalidateQueries(["courses"]);
+  queryClient.invalidateQueries({queryKey: ["courses"]});
 
   const { mutate: updateCourseMutate } = usePutData(
     selectedCourseId
@@ -249,7 +249,7 @@ export function CoursesPage() {
 
   const confirmDelete = () => {
     deleteCourse(); // Your mutation
-    queryClient.invalidateQueries(["courses"]);
+    queryClient.invalidateQueries({queryKey: ["courses"]});
   };
 
   return (
@@ -610,7 +610,7 @@ export function CoursesPage() {
 
             // If validation passes
             updateCourseMutate(updatedCourse);
-            queryClient.invalidateQueries(["courses"]);
+            queryClient.invalidateQueries({queryKey: ["courses"]});
 
             toast({
               title: "Course Updated",
