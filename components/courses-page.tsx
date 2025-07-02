@@ -171,13 +171,9 @@ export function CoursesPage() {
     setNewCourse((prev) => ({ ...prev, [field]: value }));
   };
 
-<<<<<<< HEAD
-  const { mutate } = usePostData("https://lms-backend-three-sandy.vercel.app/api/admin/createCourse");
-=======
   const { mutate } = usePostData(
-    "http://localhost:5001/api/admin/createCourse"
+    "https://api.solvarsity.com/api/admin/createCourse"
   );
->>>>>>> b679a148528dfb51d79c211774a006d652072c2f
 
   const handleCreate = () => {
     const { title, description, category } = newcourse;
