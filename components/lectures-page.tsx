@@ -312,14 +312,15 @@ export function LecturesPage() {
     }
   };
 
-  const handleSelectedVideo = async (lectureVideoUrl) => {
+  const handleSelectedVideo = async (videoId) => {
+    console.log("lectureVideoUrl", videoId)
     const res = await fetch(
-      `http://localhost:5001/api/vdocipher/otp/${lectureVideoUrl}`
+      `http://localhost:5001/api/vdocipher/otp/${videoId}`
     );
     const data = await res.json();
 
     setSelectedVideoData({
-      videoId: lectureVideoUrl,
+      videoId: videoId,
       otp: data.otp,
       playbackInfo: data.playbackInfo,
     });
@@ -529,7 +530,7 @@ export function LecturesPage() {
               <TableRow
                 key={lecture._id}
                 onClick={() => {
-                  handleSelectedVideo(lecture.videoUrl);
+                  handleSelectedVideo(lecture.videoId);
                   setIsDialogOpen(true);
                 }}
                 className="hover:bg-slate-50 transition-colors cursor-pointer"

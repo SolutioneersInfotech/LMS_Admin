@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 
-function VideoPlayer({ otp, playbackInfo }) {
+type VideoPlayerProps = {
+  otp: string;
+  playbackInfo: string;
+}; 
+
+function VideoPlayer({ otp, playbackInfo }:VideoPlayerProps) {
   useEffect(() => {
     const container = document.getElementById("vdo-player");
     if (container) {
